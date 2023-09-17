@@ -1,0 +1,5 @@
+{
+  "filereader.invaidsender": "Invalid Sender",
+  "filereader.description": "A mod for read text from file",
+  "filereader.printcurrentpath": "There are the following text files under the path:%s"
+}

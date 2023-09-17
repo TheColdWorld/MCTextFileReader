@@ -1,0 +1,5 @@
+{
+  "filereader.invaidsender": "无效的执行者",
+  "filereader.description": "一个将文件的内容在Minecraft内输出的模组",
+  "filereader.printcurrentpath": "该目录下有以下文件：%s"
+}

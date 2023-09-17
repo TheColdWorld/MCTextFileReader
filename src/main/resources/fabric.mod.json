@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "textfilereader",
+  "version": "${version}",
+  "name": "TextFileReader",
+  "description": "A mod for read text from file",
+  "authors": [
+    "TheColdWorld"
+  ],
+  "contact": {
+    "github": "https://github.com/TheColdWorld/MCTextFileReader",
+    "issues": "https://github.com/TheColdWorld/MCTextFileReader/issues",
+    "repo": "https://github.com/TheColdWorld/MCTextFileReader"
+  },
+  "license": "GPL-3.0",
+  "icon": "assets/textfilereader/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "cn.thecoldworld.textfilereader.client"
+    ],
+    "main": [
+      "cn.thecoldworld.textfilereader.mod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
