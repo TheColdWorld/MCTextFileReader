@@ -1,5 +1,8 @@
 {
-  "filereader.invaidsender": "Invalid Sender",
-  "filereader.description": "A mod for read text from file",
-  "filereader.printcurrentpath": "There are the following text files under the path:%s"
+  "text.filereader.invaidsender": "Invalid Sender",
+  "text.filereader.description": "A mod for read text from file",
+  "text.filereader.printcurrentpath": "There are the following text files under the path:%s",
+  "text.filereader.printfile": "There are the following text of %s:%s",
+  "text.filereader.printfile.nopermission": "you don't have permission of %s",
+  "text.filereader.exception": "A %s exception occurred:%s"
 }

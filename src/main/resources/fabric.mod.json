@@ -23,6 +23,9 @@
       "cn.thecoldworld.textfilereader.mod"
     ]
   },
+  "mixins": [
+    "textfilereader.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",

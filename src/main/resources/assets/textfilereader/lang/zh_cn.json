@@ -1,5 +1,8 @@
 {
-  "filereader.invaidsender": "无效的执行者",
-  "filereader.description": "一个将文件的内容在Minecraft内输出的模组",
-  "filereader.printcurrentpath": "该目录下有以下文件：%s"
+  "text.filereader.invaidsender": "无效的执行者",
+  "text.filereader.description": "一个将文件的内容在Minecraft内输出的模组",
+  "text.filereader.printcurrentpath": "该目录下有以下文件：%s",
+  "text.filereader.printfile": "这是 %s 的文件内容:%s",
+  "text.filereader.printfile.nopermission": "你或者对象没有 %s 的读取权限",
+  "text.filereader.exception": "一个 %s 异常发生了:%s"
 }
