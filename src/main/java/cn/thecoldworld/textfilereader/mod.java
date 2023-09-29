@@ -17,8 +17,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 public class mod implements ModInitializer {
     public static Logger Log = LoggerFactory.getLogger("TextFileReader");
-    //public static FilePermission.FilesList GlobalPermission;
-    //public static FilePermission.FilesList WorldPermission;
     public static BlockingDeque<Runnable> TickEvent =new LinkedBlockingDeque<>();
 
     @Override
@@ -46,13 +44,22 @@ public class mod implements ModInitializer {
                 fr.write("{\"Segmentedoutput\":false}");
                 fr.flush();
                 fr.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new RuntimeException("Cannot create global text data directory ,exception message:"+e.getMessage());
             }
         }
-        CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> filereader.Init(dispatcher)));
-        //GlobalPermission=new FilePermission.FilesList(Paths.get(FileIO.GlobalTextPath.toString(),"permissions.json").toFile());
 
+        CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> filereader.Init(dispatcher)));
+
+        try {
+            FileWriter fr=new FileWriter(Paths.get(FileIO.GlobalTextPath.toString(),"permissions.json").toFile());
+            fr.write("{\"Files\":[]}");
+            fr.flush();
+            fr.close();
+            FilePermissions.GlobalTextPermission=FilePermissions.InitPermission(Paths.get(FileIO.GlobalTextPath.toString(),"permissions.json"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         Log.info("Initialize TextFileReader mod done");
     }
     public static JsonElement GetConfig(String Name)

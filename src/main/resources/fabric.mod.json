@@ -3,7 +3,7 @@
   "id": "textfilereader",
   "version": "${version}",
   "name": "TextFileReader",
-  "description": "A mod for read text from file",
+  "description": "A mod that can read out-of-game files (fabric only)",
   "authors": [
     "TheColdWorld"
   ],
@@ -13,7 +13,6 @@
     "repo": "https://github.com/TheColdWorld/MCTextFileReader"
   },
   "license": "GPL-3.0",
-  "icon": "assets/textfilereader/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [

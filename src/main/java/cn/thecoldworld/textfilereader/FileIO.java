@@ -18,7 +18,7 @@ public class FileIO
     public static Path GlobalTextPath=null;
     public  static  Path ConfigPath=null;
 
-    public static int PrintFile(Entity entity, World world, String Filename, FileSource fileSource) throws IOException {
+    public static int PrintFile(Entity entity, World world, String Filename, FileSource fileSource) throws IOException{
         if(world.isClient) return -1;
         boolean Segmentedoutput= mod.GetConfig("Segmentedoutput").getAsBoolean();
         Scanner fp;

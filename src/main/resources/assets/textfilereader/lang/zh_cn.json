@@ -3,6 +3,10 @@
   "text.filereader.description": "一个将文件的内容在Minecraft内输出的模组",
   "text.filereader.printcurrentpath": "该目录下有以下文件：%s",
   "text.filereader.printfile": "这是 %s 的文件内容:%s",
-  "text.filereader.printfile.nopermission": "你或者对象没有 %s 的读取权限",
-  "text.filereader.exception": "一个 %s 异常发生了:%s"
+  "text.filereader.printfile.nopermission": "你没有 %s 的读取权限",
+  "text.filereader.exception": "一个 %s 异常发生了:%s",
+  "text.filereader.permission.success.give": "对于文件%s，成功将读取权限给予%s,将在稍后生效",
+  "text.filereader.permission.success.remove": "对于文件%s，成功移除了%s的读取权限,将在稍后生效",
+  "text.filereader.permission.fail.invaidfile": "无效文件：%s",
+  "text.filereader,filenotfound": "文件 %s 不存在"
 }

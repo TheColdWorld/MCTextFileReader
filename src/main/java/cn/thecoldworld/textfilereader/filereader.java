@@ -6,13 +6,14 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.WorldSavePath;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -24,22 +25,45 @@ import java.util.concurrent.CompletableFuture;
 public class filereader {
     public static void Init(CommandDispatcher<ServerCommandSource> dispatcher)
     {
-        mod.Log.info("Loading server command: /FileReader");
         dispatcher.register(CommandManager.literal("FileReader")
-                .then(CommandManager.literal("Permission").requires(src->src.hasPermissionLevel(2)))
-                .then(CommandManager.literal("File")
-                        .then(CommandManager.literal("Get")
+                .then(CommandManager.literal("Permission")
+                        .requires(src -> src.hasPermissionLevel(2))
+                        .then(CommandManager.literal("Remove")
                                 .then(CommandManager.argument("FileName", StringArgumentType.string())
-                                        .then(CommandManager.literal("Global").executes(i->GetFileContext(i,FileSource.global)))
-                                        .then(CommandManager.literal("Save").executes(i->GetFileContext(i,FileSource.save)))))
+                                        .then(CommandManager.argument("Player", EntityArgumentType.players())
+                                                .then(CommandManager.literal("Save")
+                                                        .executes(i -> RemovePermission(i, FileSource.save)))
+                                                .then(CommandManager.literal("Global")
+                                                        .executes(i -> RemovePermission(i, FileSource.global))))))
+                        .then(CommandManager.literal("Give")
+                                .then(CommandManager.argument("FileName", StringArgumentType.string())
+                                        .then(CommandManager.argument("Player", EntityArgumentType.players())
+                                                .then(CommandManager.literal("Save")
+                                                        .executes(i -> GivePermission(i, FileSource.save)))
+                                                .then(CommandManager.literal("Global")
+                                                        .executes(i -> GivePermission(i, FileSource.global)))))))
+                .then(CommandManager.literal("File")
+                        .then(CommandManager.literal("Read")
+                                .then(CommandManager.argument("FileName", StringArgumentType.string())
+                                        .then(CommandManager.literal("Global")
+                                                .then(CommandManager.argument("Player", EntityArgumentType.player())
+                                                        .executes(i -> GetFileContext(i, FileSource.global, EntityArgumentType.getEntity(i, "Player"))))
+                                                .executes(i -> GetFileContext(i, FileSource.global, null)))
+                                        .then(CommandManager.literal("Save")
+                                                .then(CommandManager.argument("Player", EntityArgumentType.player())
+                                                        .executes(i -> GetFileContext(i, FileSource.global, EntityArgumentType.getEntity(i, "Player"))))
+                                                .executes(i -> GetFileContext(i, FileSource.save, null)))))
                         .then(CommandManager.literal("List")
-                                .then(CommandManager.literal("Global").executes(i->PrintFileList(i,FileSource.global)))
-                                .then(CommandManager.literal("World").executes(i->PrintFileList(i,FileSource.save)))
-                        ))
-                .executes(i->{
+                                .requires(src -> src.hasPermissionLevel(2))
+                                .then(CommandManager.literal("Global")
+                                        .executes(i -> PrintFileList(i, FileSource.global)))
+                                .then(CommandManager.literal("World")
+                                        .executes(i -> PrintFileList(i, FileSource.save)))))
+                .executes(i -> {
                     i.getSource().sendMessage(Text.literal("TextFileReader"));
                     i.getSource().sendMessage(Text.translatable("text.filereader.description"));
-                    return 0;})
+                    return 0;
+                })
         );
     }
     public  static int PrintFileList(CommandContext<ServerCommandSource> context,FileSource fileSource) throws CommandSyntaxException
@@ -54,16 +78,6 @@ public class filereader {
                 mod.Log.info("Missing world text data directory,starting crate");
                 Files.createDirectory(Path);
             }
-            Path PermissionFilePath = Paths.get(Path.toString(), "permissions.json");
-            if(!PermissionFilePath.toFile().exists() || !PermissionFilePath.toFile().isFile())
-            {
-                mod.Log.info("Missing world text data permission file,starting crate");
-                Files.createFile(PermissionFilePath);
-                FileWriter fr=new FileWriter(String.valueOf(PermissionFilePath));
-                fr.write("{}");
-                fr.flush();
-                fr.close();
-            }
             if(Segmentedoutput)
             {
                 ServerCommandSource src=context.getSource();
@@ -76,7 +90,7 @@ public class filereader {
                         });
                     } catch (IOException e) {
                         mod.Log.error("",e);
-                        src.sendMessage(Text.translatable("text.filereader.exception",e.getClass().toString(),e.getMessage()));
+                        src.sendMessage(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage()));
                     }
                     return 0;
                 });
@@ -92,22 +106,29 @@ public class filereader {
             }
             return  0;
         }
-        catch (Exception ex) {throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",ex.getClass().toString(),ex.getMessage())).create();}
+        catch (Exception ex) {throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",ex.getClass().getCanonicalName(),ex.getMessage())).create();}
     }
-    public  static  int GetFileContext(CommandContext<ServerCommandSource> context,FileSource fileSource) throws CommandSyntaxException
+    public  static  int GetFileContext(CommandContext<ServerCommandSource> context, FileSource fileSource,@Nullable Entity ent) throws CommandSyntaxException
     {
         try {
             sender sender= GetSender(context);
             ServerCommandSource source = context.getSource();
             String FileAddress = context.getArgument("FileName", String.class);
             if(sender == cn.thecoldworld.textfilereader.sender.console) {mod.Log.info("Command FileReader File Get from server console");return PrintConsole(context,FileAddress,fileSource);}
-            Entity entity = source.getEntityOrThrow();
+            Entity entity;
+            if(ent == null)  entity= source.getEntityOrThrow();
+            else entity=ent;
+           if(!switch (fileSource)
+            {
+                case global ->FilePermissions.GlobalTextPermission.HavePermission(entity,FileAddress,source.getServer().isOnlineMode());
+                case save -> FilePermissions.WorldTextPermission.HavePermission(entity,FileAddress,source.getServer().isOnlineMode());
+            }) {throw new SimpleCommandExceptionType(Text.translatable("text.filereader.printfile.nopermission",FileAddress)).create();}
             CompletableFuture.supplyAsync(()-> {
                 try {
                     return FileIO.PrintFile(entity,source.getWorld(),FileAddress,fileSource);
                 } catch (IOException e) {
                     mod.Log.error("",e);
-                    context.getSource().sendMessage(Text.translatable("text.filereader.exception",e.getClass().toString(),e.getMessage()));
+                    context.getSource().sendMessage(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage()));
                     return -1;
                 }
             });
@@ -116,7 +137,7 @@ public class filereader {
         }
         catch (CommandSyntaxException syntaxException){ throw syntaxException;}
         catch (java.lang.Exception ex){
-            context.getSource().sendMessage(Text.translatable("text.filereader.exception",ex.getClass().toString(),ex.getMessage()));
+            context.getSource().sendMessage(Text.translatable("text.filereader.exception",ex.getClass().getCanonicalName(),ex.getMessage()));
             throw new SimpleCommandExceptionType(Text.literal(ex.getMessage())).create();
         }
     }
@@ -139,7 +160,7 @@ public class filereader {
             }
             if(Segmentedoutput)
             {
-                mod.Log.info(Text.translatable("text.filereader.printfile",FileName,"").toString());
+                mod.Log.info(Text.translatable("text.filereader.printfile",FileName,"").asTruncatedString(100));
                 while (fp.hasNext())
                 {
                     mod.Log.info(fp.nextLine());
@@ -152,20 +173,103 @@ public class filereader {
                 {
                     sb.append(fp.nextLine()).append('\n');
                 }
-                mod.Log.info(Text.translatable("text.filereader.printfile",FileName,"\n"+sb).toString());
+                mod.Log.info(Text.translatable("text.filereader.printfile",FileName,"\n"+sb).asTruncatedString(sb.length()+100));
             }
             fp.close();
             return 0;
         }
         catch (Exception e)
         {
-            context.getSource().sendMessage(Text.translatable("text.filereader.exception",e.getClass().toString(),e.getMessage()));
-            throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",e.getClass().toString(),e.getMessage())).create();
+            throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage())).create();
         }
     }
 
-
-
+    public static int GivePermission(CommandContext<ServerCommandSource> context,FileSource fs) throws CommandSyntaxException
+    {
+        GetSender(context);
+        try {
+        if(fs == FileSource.save)
+        {
+            if(!Files.exists(Paths.get(context.getSource().getServer().getSavePath(WorldSavePath.ROOT).getParent().toAbsolutePath().normalize().toString(),"Texts",context.getArgument("FileName", String.class)).toAbsolutePath().normalize()) ||
+                    !Paths.get(context.getSource().getServer().getSavePath(WorldSavePath.ROOT).getParent().toAbsolutePath().normalize().toString(),"Texts",context.getArgument("FileName", String.class)).toAbsolutePath().normalize().toFile().isFile())
+                throw new SimpleCommandExceptionType(Text.translatable("text.filereader.permission.fail.invaidfile",context.getArgument("FileName", String.class))).create();
+            EntityArgumentType.getEntities(context,"Player").forEach(i->{
+                try {
+                    FilePermissions.WorldTextPermission.GivePermission(i, context.getArgument("FileName",String.class));
+                } catch (Exception e) {
+                    mod.Log.error("",e);
+                }
+            });
+        }
+        if(fs == FileSource.global)
+        {
+            if(!Files.exists(Paths.get(FileIO.GlobalTextPath.toAbsolutePath().normalize().toString(),context.getArgument("FileName", String.class)).toAbsolutePath().normalize()) ||
+                    !Paths.get(FileIO.GlobalTextPath.toAbsolutePath().normalize().toString(),context.getArgument("FileName", String.class)).toAbsolutePath().normalize().toFile().isFile())
+                throw new SimpleCommandExceptionType(Text.translatable("text.filereader.permission.fail.invaidfile",context.getArgument("FileName", String.class))).create();
+            EntityArgumentType.getEntities(context,"Player").forEach(i->{
+                try {
+                    FilePermissions.GlobalTextPermission.GivePermission(i,context.getArgument("FileName",String.class));
+                } catch (Exception e) {
+                    mod.Log.error("",e);
+                }
+            });
+        }
+        }
+        catch(CommandSyntaxException ex)
+        {
+            throw ex;
+        }
+        catch (Exception e) {
+            throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage())).create();
+        }
+        StringBuilder sb=new StringBuilder();
+        EntityArgumentType.getEntities(context,"Player").forEach(i ->{sb.append(i.getEntityName());});
+        context.getSource().sendMessage(Text.translatable("text.filereader.permission.success.give",context.getArgument("FileName",String.class),sb.toString()));
+        return 0;
+    }
+    public static int RemovePermission(CommandContext<ServerCommandSource> context,FileSource fs) throws CommandSyntaxException
+    {
+        GetSender(context);
+        try {
+            if(fs == FileSource.save)
+            {
+                if(!Files.exists(Paths.get(context.getSource().getServer().getSavePath(WorldSavePath.ROOT).getParent().toAbsolutePath().normalize().toString(),"Texts",context.getArgument("FileName", String.class)).toAbsolutePath().normalize()) ||
+                        !Paths.get(context.getSource().getServer().getSavePath(WorldSavePath.ROOT).getParent().toAbsolutePath().normalize().toString(),"Texts",context.getArgument("FileName", String.class)).toAbsolutePath().normalize().toFile().isFile())
+                    throw new SimpleCommandExceptionType(Text.translatable("text.filereader.permission.fail.invaidfile",context.getArgument("FileName", String.class))).create();
+                EntityArgumentType.getEntities(context,"Player").forEach(i->{
+                    try {
+                        FilePermissions.WorldTextPermission.RemovePermission(i, context.getArgument("FileName",String.class),context.getSource().getServer().isOnlineMode());
+                    } catch (Exception e) {
+                        mod.Log.error("",e);
+                    }
+                });
+            }
+            if(fs == FileSource.global)
+            {
+                if(!Files.exists(Paths.get(FileIO.GlobalTextPath.toAbsolutePath().normalize().toString(),context.getArgument("FileName", String.class)).toAbsolutePath().normalize()) ||
+                        !Paths.get(FileIO.GlobalTextPath.toAbsolutePath().normalize().toString(),context.getArgument("FileName", String.class)).toAbsolutePath().normalize().toFile().isFile())
+                    throw new SimpleCommandExceptionType(Text.translatable("text.filereader.permission.fail.invaidfile",context.getArgument("FileName", String.class))).create();
+                EntityArgumentType.getEntities(context,"Player").forEach(i->{
+                    try {
+                        FilePermissions.GlobalTextPermission.RemovePermission(i,context.getArgument("FileName",String.class),context.getSource().getServer().isOnlineMode());
+                    } catch (Exception e) {
+                        mod.Log.error("",e);
+                    }
+                });
+            }
+        }
+        catch(CommandSyntaxException ex)
+        {
+            throw ex;
+        }
+        catch (Exception e) {
+            throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage())).create();
+        }
+        StringBuilder sb=new StringBuilder();
+        EntityArgumentType.getEntities(context,"Player").forEach(i ->{sb.append(i.getEntityName());});
+        context.getSource().sendMessage(Text.translatable("text.filereader.permission.success.remove",context.getArgument("FileName",String.class),sb.toString()));
+        return 0;
+    }
     public  static  sender GetSender(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
     {
         ServerCommandSource source = context.getSource();
