@@ -1,24 +1,25 @@
 [简体中文](./README_CN.md) | [English](./README.md)
 
-# License
-This project is open source under the GPL-3 license
-
 # MCTextFileReader
-A mod that can read out-of-game files (fabric only)
+A mod that can read out-of-game files in game (fabric only)
 
 # Install
-1. Download the latest version from the [Releases](https://github.com/TheColdWorld/MCTextFileReader/releases) page
-2. Install the mod itself into your mods folder
+1. Download the latest version from the [Versions](https://modrinth.com/mod/textfilereader/versions) page
+2. Install the mod into your mods folder
 3. Start Minecraft
 
 # Use
 1. Enter the world<br>
-2. Put the content you want to output in the game chat bar into the archived Texts folder or the Texts folder of the server or client running directory<br>
-3. Type /TextFileReader File Read [Save (in archived Texts folder) | Global (in the Texts folder of the server or client runtime directory)] in the chat box
-4. The file content comes out
+2. Put the content you want to output in the game chat bar into [Save (in archived Texts folder) | Global (in the Texts folder of the server or client runtime directory)]<br>
+3. Give file permissions to you (Requires permission level 2 or above | Enable cheating)  [use /FileReader Permission Give [FileName]]<br>
+4. Type /FileReader File Read [FileName] [Save (in archived Texts folder) | Global (in the Texts folder of the server or client runtime directory)] in the chat box <br> or type /cTextFileReader Read [FileName(in the Texts folder of client runtime directory)] (client only)
+5. The file content comes out
 
 # Compilation and debugging
-1. Clone <br>this repository
-2. Use your IDE to **import**build.gradle <br>file
+1. Clone this [repository](https://github.com/TheColdWorld/MCTextFileReader)<br>
+2. Use your IDE to **import** build.gradle file<br>
 3. Start **debugging** and **compiling**<br>
-(Optional) 4. Run **gradlew build**  under the root directory of the repository to compile the module body
+   (Optional)4. Run **gradlew build**  under the root directory of the repository to compile the mod
+
+# License
+This project is open source under the GPL-3 license
