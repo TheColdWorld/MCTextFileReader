@@ -30,6 +30,10 @@ public class filereader {
                         .requires(src -> src.hasPermissionLevel(2))
                         .then(CommandManager.literal("Remove")
                                 .then(CommandManager.argument("FileName", StringArgumentType.string())
+                                        .then(CommandManager.literal("Save")
+                                                .executes(i -> RemovePermissionMyself(i, FileSource.save)))
+                                        .then(CommandManager.literal("Global")
+                                                .executes(i -> RemovePermissionMyself(i, FileSource.global)))
                                         .then(CommandManager.argument("Player", EntityArgumentType.players())
                                                 .then(CommandManager.literal("Save")
                                                         .executes(i -> RemovePermission(i, FileSource.save)))
@@ -37,6 +41,10 @@ public class filereader {
                                                         .executes(i -> RemovePermission(i, FileSource.global))))))
                         .then(CommandManager.literal("Give")
                                 .then(CommandManager.argument("FileName", StringArgumentType.string())
+                                        .then(CommandManager.literal("Save")
+                                                .executes(i -> GivePermissionMyself(i, FileSource.save)))
+                                        .then(CommandManager.literal("Global")
+                                                .executes(i -> GivePermissionMyself(i, FileSource.global)))
                                         .then(CommandManager.argument("Player", EntityArgumentType.players())
                                                 .then(CommandManager.literal("Save")
                                                         .executes(i -> GivePermission(i, FileSource.save)))
@@ -57,7 +65,7 @@ public class filereader {
                                 .requires(src -> src.hasPermissionLevel(2))
                                 .then(CommandManager.literal("Global")
                                         .executes(i -> PrintFileList(i, FileSource.global)))
-                                .then(CommandManager.literal("World")
+                                .then(CommandManager.literal("Save")
                                         .executes(i -> PrintFileList(i, FileSource.save)))))
                 .executes(i -> {
                     i.getSource().sendMessage(Text.literal("TextFileReader"));
@@ -75,7 +83,7 @@ public class filereader {
             else Path= FileIO.GlobalTextPath;
             if(!Path.toFile().exists() || !Path.toFile().isDirectory())
             {
-                mod.Log.info("Missing world text data directory,starting crate");
+                mod.Log.info("Missing server text data directory,starting crate");
                 Files.createDirectory(Path);
             }
             if(Segmentedoutput)
@@ -102,7 +110,7 @@ public class filereader {
                     if (i.getFileName().toString().equals("permissions.json")) return;
                     sb.append(i.getFileName()).append("\n");
                 });
-                context.getSource().sendMessage(Text.translatable("text.filereader.printcurrentpath","\n"+sb.toString()));
+                context.getSource().sendMessage(Text.translatable("text.filereader.printcurrentpath","\n"+ sb));
             }
             return  0;
         }
@@ -183,7 +191,36 @@ public class filereader {
             throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage())).create();
         }
     }
-
+    public static int GivePermissionMyself(CommandContext<ServerCommandSource> context,FileSource fs) throws CommandSyntaxException
+    {
+        GetSender(context);
+        try
+        {
+            if(fs == FileSource.save)
+            {
+                if(!Files.exists(Paths.get(context.getSource().getServer().getSavePath(WorldSavePath.ROOT).getParent().toAbsolutePath().normalize().toString(),"Texts",context.getArgument("FileName", String.class)).toAbsolutePath().normalize()) ||
+                        !Paths.get(context.getSource().getServer().getSavePath(WorldSavePath.ROOT).getParent().toAbsolutePath().normalize().toString(),"Texts",context.getArgument("FileName", String.class)).toAbsolutePath().normalize().toFile().isFile())
+                    throw new SimpleCommandExceptionType(Text.translatable("text.filereader.permission.fail.invaidfile",context.getArgument("FileName", String.class))).create();
+                FilePermissions.WorldTextPermission.GivePermission(context.getSource().getEntityOrThrow(), context.getArgument("FileName",String.class));
+            }
+            else if(fs == FileSource.global)
+            {
+                if(!Files.exists(Paths.get(FileIO.GlobalTextPath.toAbsolutePath().normalize().toString(),context.getArgument("FileName", String.class)).toAbsolutePath().normalize()) ||
+                        !Paths.get(FileIO.GlobalTextPath.toAbsolutePath().normalize().toString(),context.getArgument("FileName", String.class)).toAbsolutePath().normalize().toFile().isFile())
+                    throw new SimpleCommandExceptionType(Text.translatable("text.filereader.permission.fail.invaidfile",context.getArgument("FileName", String.class))).create();
+                FilePermissions.GlobalTextPermission.GivePermission(context.getSource().getEntityOrThrow(),context.getArgument("FileName",String.class));
+            }
+        }
+        catch(CommandSyntaxException ex)
+        {
+            throw ex;
+        }
+        catch (Exception e) {
+            throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage())).create();
+        }
+        context.getSource().sendMessage(Text.translatable("text.filereader.permission.success.give",context.getArgument("FileName",String.class),context.getSource().getEntityOrThrow().getEntityName()));
+        return 0;
+    }
     public static int GivePermission(CommandContext<ServerCommandSource> context,FileSource fs) throws CommandSyntaxException
     {
         GetSender(context);
@@ -201,7 +238,7 @@ public class filereader {
                 }
             });
         }
-        if(fs == FileSource.global)
+        else if(fs == FileSource.global)
         {
             if(!Files.exists(Paths.get(FileIO.GlobalTextPath.toAbsolutePath().normalize().toString(),context.getArgument("FileName", String.class)).toAbsolutePath().normalize()) ||
                     !Paths.get(FileIO.GlobalTextPath.toAbsolutePath().normalize().toString(),context.getArgument("FileName", String.class)).toAbsolutePath().normalize().toFile().isFile())
@@ -223,8 +260,34 @@ public class filereader {
             throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage())).create();
         }
         StringBuilder sb=new StringBuilder();
-        EntityArgumentType.getEntities(context,"Player").forEach(i ->{sb.append(i.getEntityName());});
+        EntityArgumentType.getEntities(context,"Player").forEach(i ->{sb.append(i.getEntityName()).append(',');});
         context.getSource().sendMessage(Text.translatable("text.filereader.permission.success.give",context.getArgument("FileName",String.class),sb.toString()));
+        return 0;
+    }
+    public static int RemovePermissionMyself(CommandContext<ServerCommandSource> context,FileSource fs) throws CommandSyntaxException
+    {
+        GetSender(context);
+        try {
+            if(fs == FileSource.save)
+            {
+                if(!Files.exists(Paths.get(context.getSource().getServer().getSavePath(WorldSavePath.ROOT).getParent().toAbsolutePath().normalize().toString(),"Texts",context.getArgument("FileName", String.class)).toAbsolutePath().normalize()) ||
+                        !Paths.get(context.getSource().getServer().getSavePath(WorldSavePath.ROOT).getParent().toAbsolutePath().normalize().toString(),"Texts",context.getArgument("FileName", String.class)).toAbsolutePath().normalize().toFile().isFile())
+                    throw new SimpleCommandExceptionType(Text.translatable("text.filereader.permission.fail.invaidfile",context.getArgument("FileName", String.class))).create();
+                FilePermissions.WorldTextPermission.RemovePermission(context.getSource().getEntityOrThrow(), context.getArgument("FileName",String.class),context.getSource().getServer().isOnlineMode());
+            }
+            if(fs == FileSource.global)
+            {
+                FilePermissions.GlobalTextPermission.RemovePermission(context.getSource().getEntityOrThrow(),context.getArgument("FileName",String.class),context.getSource().getServer().isOnlineMode());
+            }
+        }
+        catch(CommandSyntaxException ex)
+        {
+            throw ex;
+        }
+        catch (Exception e) {
+            throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage())).create();
+        }
+        context.getSource().sendMessage(Text.translatable("text.filereader.permission.success.remove",context.getArgument("FileName",String.class),context.getSource().getEntityOrThrow().getEntityName()));
         return 0;
     }
     public static int RemovePermission(CommandContext<ServerCommandSource> context,FileSource fs) throws CommandSyntaxException
@@ -266,7 +329,7 @@ public class filereader {
             throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage())).create();
         }
         StringBuilder sb=new StringBuilder();
-        EntityArgumentType.getEntities(context,"Player").forEach(i ->{sb.append(i.getEntityName());});
+        EntityArgumentType.getEntities(context,"Player").forEach(i ->{sb.append(i.getEntityName()).append(',');});
         context.getSource().sendMessage(Text.translatable("text.filereader.permission.success.remove",context.getArgument("FileName",String.class),sb.toString()));
         return 0;
     }

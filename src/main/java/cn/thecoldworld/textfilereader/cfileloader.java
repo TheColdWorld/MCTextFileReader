@@ -8,18 +8,26 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.util.WorldSavePath;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 
 public class cfileloader  {
     public  static void init(@NotNull CommandDispatcher<FabricClientCommandSource> dispatcher)
     {
         dispatcher.register(ClientCommandManager.literal("cFileLoader")
+                        .then(ClientCommandManager.literal("List")
+                                .executes(cfileloader::CPrintFileList))
                 .then(ClientCommandManager.literal("Read")
                         .then(ClientCommandManager.argument("FileName",StringArgumentType.string()).executes(cfileloader::CGetFileContext))
                 )
@@ -54,9 +62,48 @@ public class cfileloader  {
             }
             fp.close();
         }
-        //catch (CommandSyntaxException e) {throw e;}
         catch (NoSuchFileException fe) {throw new  SimpleCommandExceptionType(Text.translatable("text.filereader,filenotfound",fe.getMessage())).create();}
         catch (Exception ex){ throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",ex.getClass().getCanonicalName(),ex.getMessage())).create();}
         return 0;
+    }
+    public  static int CPrintFileList(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException
+    {
+        try {
+            boolean Segmentedoutput= mod.GetConfig("Segmentedoutput").getAsBoolean();
+            Path Path=FileIO.GlobalTextPath;
+            if(!Path.toFile().exists() || !Path.toFile().isDirectory())
+            {
+                mod.Log.info("Missing client text data directory,starting crate");
+                Files.createDirectory(Path);
+            }
+            if(Segmentedoutput)
+            {
+                FabricClientCommandSource src=context.getSource();
+                CompletableFuture.supplyAsync(()->{
+                    src.sendFeedback(Text.translatable("text.filereader.printcurrentpath",""));
+                    try {
+                        Files.walk(Path, Integer.MAX_VALUE).filter(Files::isRegularFile).forEach(i -> {
+                            if (i.getFileName().toString().equals("permissions.json")) return;
+                            src.sendFeedback(Text.literal(i.getFileName().toString()));
+                        });
+                    } catch (IOException e) {
+                        mod.Log.error("",e);
+                        src.sendError(Text.translatable("text.filereader.exception",e.getClass().getCanonicalName(),e.getMessage()));
+                    }
+                    return 0;
+                });
+            }
+            else
+            {
+                StringBuilder sb=new StringBuilder();
+                Files.walk(Path, Integer.MAX_VALUE).filter(Files::isRegularFile).forEach(i -> {
+                    if (i.getFileName().toString().equals("permissions.json")) return;
+                    sb.append(i.getFileName()).append("\n");
+                });
+                context.getSource().sendFeedback(Text.translatable("text.filereader.printcurrentpath","\n"+ sb));
+            }
+            return  0;
+        }
+        catch (Exception ex) {throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception",ex.getClass().getCanonicalName(),ex.getMessage())).create();}
     }
 }
