@@ -3,7 +3,7 @@
   "id": "textfilereader",
   "version": "${version}",
   "name": "TextFileReader",
-  "description": "A mod that can read out-of-game files (fabric only)",
+  "description": "A mod that can read out-of-game files in game (fabric only)",
   "authors": [
     "TheColdWorld"
   ],
@@ -30,5 +30,13 @@
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
     "minecraft": "${minecraft_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.modrinth": "https://modrinth.com/mod/textfilereader"
+      },
+      "update_checker": true
+    }
   }
 }

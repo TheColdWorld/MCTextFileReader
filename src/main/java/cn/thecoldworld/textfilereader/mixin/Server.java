@@ -20,7 +20,15 @@ public abstract class Server {
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTick(CallbackInfo info) {
         Path PermissionPath=((MinecraftServer) (Object) this).getSavePath(WorldSavePath.ROOT).toAbsolutePath().resolve("Texts").resolve("permissions.json").normalize();
-        if(!((MinecraftServer) (Object) this).getSavePath(WorldSavePath.ROOT).toAbsolutePath().resolve("Texts").resolve("permissions.json").normalize().toFile().exists() || !((MinecraftServer) (Object) this).getSavePath(WorldSavePath.ROOT).toAbsolutePath().resolve("Texts").resolve("permissions.json").normalize().toFile().isFile())
+        if(!PermissionPath.getParent().normalize().toFile().exists() || !PermissionPath.getParent().normalize().toFile().isDirectory())
+        {
+            try {
+                Files.createDirectory(PermissionPath.getParent().normalize());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if(!PermissionPath.toFile().exists() || !PermissionPath.toFile().isFile())
         {
             mod.Log.info("Missing world text data permission file,starting crate");
             try {
