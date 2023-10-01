@@ -27,8 +27,7 @@ public class FilePermissions {
                 File fs =new File();
                 fs.Name=i.toFile().getName();
                 fs.Permissions =new ArrayList<>();
-                mod.TickEvent.add(() -> {Files.add(fs);});
-                Files.add(fs);
+                mod.TickEvent.add(() -> Files.add(fs));
             });
         }
 
@@ -45,7 +44,7 @@ public class FilePermissions {
         }
         public boolean RemovePermission(Entity ent,String FileName,boolean Online_Mode)
         {
-            return Files.stream().filter(i->i.Name.equals(FileName)).allMatch(file -> mod.TickEvent.add(() -> {file.RemovePermission(ent,Online_Mode);}));
+            return Files.stream().filter(i->i.Name.equals(FileName)).allMatch(file -> mod.TickEvent.add(() -> file.RemovePermission(ent,Online_Mode)));
         }
         public boolean GivePermission(@NotNull Entity ent, String FileName) throws  Exception  {
             if(!ent.isPlayer()) throw new Exception("Is not a Player");
@@ -67,16 +66,16 @@ public class FilePermissions {
         {
             if(Online_Mode)
             {
-                return Permissions.stream().filter(i -> i.UUID.equals(ent.getUuidAsString())).allMatch(i -> mod.TickEvent.add(() -> {Permissions.remove(i);}));
+                return Permissions.stream().filter(i -> i.UUID.equals(ent.getUuidAsString())).allMatch(i -> mod.TickEvent.add(() -> Permissions.remove(i)));
             }
-            return Permissions.stream().filter(i -> i.Name.equals(ent.getEntityName())).allMatch(i -> mod.TickEvent.add(() -> {Permissions.remove(i);}));
+            return Permissions.stream().filter(i -> i.Name.equals(ent.getEntityName())).allMatch(i -> mod.TickEvent.add(() -> Permissions.remove(i)));
         }
         public boolean GivePermission(@NotNull Entity ent)
         {
             FilePermissions.Permissions p=new Permissions();
             p.Name=ent.getEntityName();
             p.UUID=ent.getUuidAsString();
-            mod.TickEvent.add(() -> {Permissions.add(p);});
+            mod.TickEvent.add(() -> Permissions.add(p));
             return true;
         }
         public boolean HavePermission(Entity entity,boolean Online_Mode)
