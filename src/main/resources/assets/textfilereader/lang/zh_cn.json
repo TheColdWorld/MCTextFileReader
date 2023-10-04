@@ -7,7 +7,10 @@
   "text.filereader.exception": "一个 %s 异常发生了:%s",
   "text.filereader.permission.success.give": "对于文件%s，成功将读取权限给予%s,将在稍后生效",
   "text.filereader.permission.success.remove": "对于文件%s，成功移除了%s的读取权限,将在稍后生效",
+  "text.filereader.permission.success.give.ops": "§7[%s§7:已给予%s %s§7的读取权限]",
+  "text.filereader.permission.success.remove.ops": "§7[%s§7:已移除%s %s§7的读取权限]",
   "text.filereader.permission.fail.invaidfile": "无效文件：%s",
   "text.filereader,filenotfound": "文件 %s 不存在",
   "modmenu.descriptionTranslation.textfilereader": "一个将游戏外文件的内容在Minecraft内输出的模组"
+
 }

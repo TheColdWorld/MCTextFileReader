@@ -7,6 +7,8 @@
   "text.filereader.exception": "A %s exception occurred:%s",
   "text.filereader.permission.success.give": "Read access to %s is successfully given to %s, and the changes will take effect later ",
   "text.filereader.permission.success.remove": "Read access to %s is successfully remove to %s, and the changes will take effect later ",
+  "text.filereader.permission.success.give.ops": "§7[%s§7:Read access to %s %s §7has been granted] ",
+  "text.filereader.permission.success.remove.ops": "§7[%s§7:Read permissions for %s %s §7have been removed] ",
   "text.filereader.permission.fail.invaidfile": "Invaid file:%s",
   "text.filereader,filenotfound": "File %s is not exist",
   "modmenu.descriptionTranslation.textfilereader": "A mod that can read out-of-game files in game"
