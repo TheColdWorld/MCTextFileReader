@@ -3,13 +3,17 @@
   "text.filereader.description": "A mod that can read out-of-game files in game",
   "text.filereader.printcurrentpath": "There are the following text files under the path:%s",
   "text.filereader.printfile": "There are the following text of %s:%s",
+  "text.filereader.printfile.others": "\n<---EOF--->\nThe command executor is %s",
   "text.filereader.printfile.nopermission": "you don't have permission of %s",
+  "text.filereader.printfile.others.nopermission": "%s don't have permission of %s",
   "text.filereader.exception": "A %s exception occurred:%s",
   "text.filereader.permission.success.give": "Read access to %s is successfully given to %s, and the changes will take effect later ",
   "text.filereader.permission.success.remove": "Read access to %s is successfully remove to %s, and the changes will take effect later ",
   "text.filereader.permission.success.give.ops": "§7[%s§7:Read access to %s %s §7has been granted] ",
   "text.filereader.permission.success.remove.ops": "§7[%s§7:Read permissions for %s %s §7have been removed] ",
   "text.filereader.permission.fail.invaidfile": "Invaid file:%s",
-  "text.filereader,filenotfound": "File %s is not exist",
+  "text.filereader.permission.get.yes": "%s has read access to %s.",
+  "text.filereader.permission.get.no": "%s doesn't have read access to %s.",
+  "text.filereader.filenotfound": "File %s is not exist",
   "modmenu.descriptionTranslation.textfilereader": "A mod that can read out-of-game files in game"
 }

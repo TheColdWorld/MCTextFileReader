@@ -5,23 +5,24 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.minecraft.util.WorldSavePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.*;
 
 public class mod implements ModInitializer {
     public static Logger Log = LoggerFactory.getLogger("TextFileReader");
     public static BlockingDeque<Runnable> TickEvent = new LinkedBlockingDeque<>();
-
-    final public Timer timer = new Timer(true);
+    public static ScheduledExecutorService scheduledExecutorService=null;
+    public static ThreadPool threadPool=null;
+    public  static boolean IsWorldLoaded=false;
 
     public static JsonElement GetConfig(String Name) {
         Gson gson = new com.google.gson.Gson();
@@ -62,7 +63,6 @@ public class mod implements ModInitializer {
         }
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> filereader.Init(dispatcher)));
-
         try {
             FileWriter fr = new FileWriter(Paths.get(FileIO.GlobalTextPath.toString(), "permissions.json").toFile());
             fr.write("{\"Files\":[]}");
@@ -72,27 +72,54 @@ public class mod implements ModInitializer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if ( TickEvent.isEmpty() ) {
-                    try {
-                        FilePermissions.GlobalTextPermission.UpdateFile();
-                        FilePermissions.WorldTextPermission.UpdateFile();
-                        FilePermissions.GlobalTextPermission.UpToFile();
-                        FilePermissions.WorldTextPermission.UpToFile();
-                    } catch (IOException e) {
-                        mod.Log.error("", e);
-                    }
-                    return;
-                }
+        threadPool=new ThreadPool();
+        ServerWorldEvents.LOAD.register(((server, world) -> {
+            Path PermissionPath = server.getSavePath(WorldSavePath.ROOT).toAbsolutePath().resolve("Texts").resolve("permissions.json").normalize();
+            if ( !PermissionPath.getParent().normalize().toFile().exists() || !PermissionPath.getParent().normalize().toFile().isDirectory() ) {
                 try {
-                    TickEvent.take().run();
-                } catch (InterruptedException e) {
-                    Log.error("", e);
+                    Files.createDirectory(PermissionPath.getParent().normalize());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
-        }, 500L);
+            if ( !PermissionPath.toFile().exists() || !PermissionPath.toFile().isFile() ) {
+                mod.Log.info("Missing world text data permission file,starting crate");
+                try {
+                    Files.createFile(PermissionPath);
+                    FileWriter fr = new FileWriter(PermissionPath.toFile());
+                    fr.write("{\"Files\":[]}");
+                    fr.flush();
+                    fr.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            try {
+                FilePermissions.WorldTextPermission = FilePermissions.InitPermission(PermissionPath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            mod.IsWorldLoaded=true;
+        }));
+        mod.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(mod.threadPool);
+        mod.scheduledExecutorService.scheduleAtFixedRate(() -> {
+            if(!mod.IsWorldLoaded)return;
+            try {
+                if ( mod.TickEvent.isEmpty() ) {
+                    FilePermissions.GlobalTextPermission.UpdateFile();
+                    FilePermissions.WorldTextPermission.UpdateFile();
+                    FilePermissions.GlobalTextPermission.UpToFile();
+                    FilePermissions.WorldTextPermission.UpToFile();
+                    return;
+                }
+                mod.TickEvent.take().run();
+            } catch (Exception e)
+            {
+                mod.Log.error("",e);
+            }
+        },0,500, TimeUnit.MICROSECONDS);
+        ServerWorldEvents.UNLOAD.register(((server, world) -> mod.IsWorldLoaded=false));
+
         Log.info("Initialize TextFileReader mod done");
     }
 }
