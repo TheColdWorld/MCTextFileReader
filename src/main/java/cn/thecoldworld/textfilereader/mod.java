@@ -78,6 +78,12 @@ public class mod implements ModInitializer {
             if ( !PermissionPath.getParent().normalize().toFile().exists() || !PermissionPath.getParent().normalize().toFile().isDirectory() ) {
                 try {
                     Files.createDirectory(PermissionPath.getParent().normalize());
+                    mod.Log.info("Missing world text data permission file,starting crate");
+                    Files.createFile(PermissionPath);
+                    FileWriter fr = new FileWriter(PermissionPath.toFile());
+                    fr.write("{\"Files\":[]}");
+                    fr.flush();
+                    fr.close();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
