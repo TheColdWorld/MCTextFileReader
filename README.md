@@ -10,7 +10,7 @@ A mod that can read out-of-game files in game (fabric only)
 
 # Use
 1. Enter the world<br>
-2. Put the content you want to output in the game chat bar into [Save (in archived Texts folder) | Global (in the Texts folder of the server or client runtime directory)]<br>
+2. Put the file(using UTF-8 encoding) you want to output in the game chat bar into [Save (in archived Texts folder) | Global (in the Texts folder of the server or client runtime directory)]<br>
 3. Give file permissions to you (Requires permission level 2 or above | Enable cheating)  [use /FileReader Permission Give [FileName]]<br>
 4. Type /FileReader File Read [FileName] [Save (in archived Texts folder) | Global (in the Texts folder of the server or client runtime directory)] in the chat box <br> or type /cTextFileReader Read [FileName(in the Texts folder of client runtime directory)] (client only)
 5. The file content comes out
