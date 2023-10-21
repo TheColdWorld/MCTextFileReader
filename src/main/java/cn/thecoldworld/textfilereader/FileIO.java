@@ -21,14 +21,13 @@ public class FileIO {
 
     public static int PrintFile(Entity entity, World world, String Filename, FileSource fileSource, boolean Isself, CommandContext<ServerCommandSource> context) throws IOException {
         if ( world.isClient ) return -1;
-        boolean Segmentedoutput = mod.GetConfig("Segmentedoutput").getAsBoolean();
         Scanner fp;
         switch (fileSource) {
             case save -> fp = new Scanner(Paths.get(Objects.requireNonNull(world.getServer()).getSavePath(WorldSavePath.ROOT).getParent().toString(), "Texts", Filename), StandardCharsets.UTF_8);
             case global -> fp = new Scanner(Paths.get(GlobalTextPath.toString(), Filename), StandardCharsets.UTF_8);
             default -> throw new IOException("Internal error");
         }
-        if ( Segmentedoutput ) {
+        if ( variables.ModSettings.Segmentedoutput ) {
             entity.sendMessage(Text.translatable("text.filereader.printfile", Filename, ""));
             while (fp.hasNext()) {
                 entity.sendMessage(Text.literal(fp.nextLine()));

@@ -40,7 +40,7 @@ public class cfileloader {
         try {
             String Fileaddress = context.getArgument("FileName", String.class);
             Scanner fp = new Scanner(Paths.get(FileIO.GlobalTextPath.toString(), Fileaddress), StandardCharsets.UTF_8);
-            if ( mod.GetConfig("Segmentedoutput").getAsBoolean() ) {
+            if ( variables.ModSettings.Segmentedoutput ) {
                 context.getSource().sendFeedback(Text.translatable("text.filereader.printfile", Fileaddress, ""));
                 while (fp.hasNext()) {
                     context.getSource().sendFeedback(Text.literal(fp.nextLine()));
@@ -50,7 +50,7 @@ public class cfileloader {
                 while (fp.hasNext()) {
                     sb.append(fp.nextLine()).append('\n');
                 }
-                context.getSource().sendFeedback(Text.translatable("text.filereader.printfile", Fileaddress, "\n" + sb.toString()));
+                context.getSource().sendFeedback(Text.translatable("text.filereader.printfile", Fileaddress, "\n" + sb));
             }
             fp.close();
         } catch (NoSuchFileException fe) {
@@ -63,13 +63,12 @@ public class cfileloader {
 
     public static int CPrintFileList(CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {
         try {
-            boolean Segmentedoutput = mod.GetConfig("Segmentedoutput").getAsBoolean();
             Path Path = FileIO.GlobalTextPath;
             if ( !Path.toFile().exists() || !Path.toFile().isDirectory() ) {
-                mod.Log.info("Missing client text data directory,starting crate");
+                variables.Log.info("Missing client text data directory,starting crate");
                 Files.createDirectory(Path);
             }
-            if ( Segmentedoutput ) {
+            if ( variables.ModSettings.Segmentedoutput ) {
                 FabricClientCommandSource src = context.getSource();
                 CompletableFuture.supplyAsync(() -> {
                     src.sendFeedback(Text.translatable("text.filereader.printcurrentpath", ""));
@@ -79,7 +78,7 @@ public class cfileloader {
                             src.sendFeedback(Text.literal(i.getFileName().toString()));
                         });
                     } catch (IOException e) {
-                        mod.Log.error("", e);
+                        variables.Log.error("", e);
                         src.sendError(Text.translatable("text.filereader.exception", e.getClass().getCanonicalName(), e.getMessage()));
                     }
                     return 0;
