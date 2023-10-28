@@ -15,5 +15,7 @@
   "text.filereader.permission.get.yes": "%s有%s的读取权限",
   "text.filereader.permission.get.no": "%s没有%s的读取权限",
   "text.filereader.filenotfound": "文件 %s 不存在",
-  "modmenu.descriptionTranslation.textfilereader": "一个将游戏外文件的内容在Minecraft内输出的模组"
+  "text.filereader.printfile.wrongrange": "整型数据不能小于%d，但发现了%d",
+  "modmenu.descriptionTranslation.textfilereader": "一个将游戏外文件的内容在Minecraft内输出的模组",
+  "key.filereader.gui.open": "打开Filereader GUI"
 }
