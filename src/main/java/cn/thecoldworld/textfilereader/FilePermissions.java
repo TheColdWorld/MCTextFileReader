@@ -55,7 +55,7 @@ public class FilePermissions {
         public void UpdateFile() throws IOException {
             java.nio.file.Files.walk(FilePath.getParentFile().toPath(), Integer.MAX_VALUE).filter(java.nio.file.Files::isRegularFile).forEach(i -> {
                 if ( i.getFileName().toString().equals("permissions.json") ) return;
-                if(funcitons.GetFilePerfix(i.toFile()).equals("exe")) return;
+                if(funcitons.GetFilePrefix(i.toFile()).equals("exe")) return;
                 if ( Files.stream().anyMatch(m -> m.Name.equals(i.toFile().getName())) ) return;
                 File fs = new File();
                 fs.Name = i.toFile().getName();

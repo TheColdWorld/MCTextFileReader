@@ -1,6 +1,7 @@
 package cn.thecoldworld.textfilereader;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -64,10 +65,18 @@ public class filereader {
                                 .then(CommandManager.argument("FileName", StringArgumentType.string())
                                         .then(CommandManager.literal("Global")
                                                 .then(CommandManager.argument("Player", EntityArgumentType.player())
-                                                        .executes(i -> GetFileContext(i, FileSource.global, EntityArgumentType.getEntity(i, "Player"))))
+                                                        .executes(i -> GetFileContext(i, FileSource.global, EntityArgumentType.getEntity(i, "Player")))
+                                                        .then(CommandManager.argument("End_line",IntegerArgumentType.integer(1))
+                                                                .then(CommandManager.argument("Begin_line",IntegerArgumentType.integer(1))
+                                                                        .executes(i->GetFileContextLines(i,FileSource.global,IntegerArgumentType.getInteger(i,"End_line"),IntegerArgumentType.getInteger(i,"Begin_line"),EntityArgumentType.getEntity(i, "Player"))))
+                                                                .executes(i-> GetFileContextLines(i,FileSource.global,IntegerArgumentType.getInteger(i,"End_line"),1,EntityArgumentType.getEntity(i, "Player")))))
                                                 .executes(i -> GetFileContext(i, FileSource.global, null)))
                                         .then(CommandManager.literal("Save")
                                                 .then(CommandManager.argument("Player", EntityArgumentType.player())
+                                                        .then(CommandManager.argument("End_line",IntegerArgumentType.integer(1))
+                                                                .then(CommandManager.argument("Begin_line",IntegerArgumentType.integer(1))
+                                                                        .executes(i->GetFileContextLines(i,FileSource.save,IntegerArgumentType.getInteger(i,"End_line"),IntegerArgumentType.getInteger(i,"Begin_line"),EntityArgumentType.getEntity(i, "Player"))))
+                                                                .executes(i-> GetFileContextLines(i,FileSource.save,IntegerArgumentType.getInteger(i,"End_line"),1,EntityArgumentType.getEntity(i, "Player"))))
                                                         .executes(i -> GetFileContext(i, FileSource.save, EntityArgumentType.getEntity(i, "Player"))))
                                                 .executes(i -> GetFileContext(i, FileSource.save, null)))))
                         .then(CommandManager.literal("List")
@@ -123,6 +132,50 @@ public class filereader {
         }
     }
 
+    public static int GetFileContextLines(CommandContext<ServerCommandSource> context,FileSource fileSource,int end , int start,@Nullable Entity ent) throws CommandSyntaxException
+    {
+        try {
+            if(end < start) throw new SimpleCommandExceptionType(Text.translatable("text.filereader.printfile.wrongrange",start,end)).create();
+            sender sender = GetSender(context);
+            ServerCommandSource source = context.getSource();
+            String FileAddress = context.getArgument("FileName", String.class);
+            if ( sender == cn.thecoldworld.textfilereader.sender.console ) {
+                variables.Log.info("Command FileReader File Get from server console");
+                return PrintConsole(context, FileAddress, fileSource);
+            }
+            boolean self = ent==null || context.getSource().getEntity() == ent ;
+            Entity entity;
+            if ( ent == null ) entity = source.getEntityOrThrow();
+            else entity = ent;
+
+            if (!switch (fileSource) {
+                case global ->
+                        FilePermissions.GlobalTextPermission.HavePermission(entity, FileAddress, source.getServer().isOnlineMode());
+                case save ->
+                        FilePermissions.WorldTextPermission.HavePermission(entity, FileAddress, source.getServer().isOnlineMode());
+            } ) {
+                if(self) throw new SimpleCommandExceptionType(Text.translatable("text.filereader.printfile.nopermission", FileAddress)).create();
+                throw new SimpleCommandExceptionType(Text.translatable("text.filereader.printfile.others.nopermission",ent.getEntityName(), FileAddress)).create();
+            }
+            CompletableFuture.supplyAsync(() -> {
+                try {
+                    return FileIO.PrintFileLines(entity, source.getWorld(), FileAddress, fileSource,self,context,start,end);
+                } catch (IOException e) {
+                    variables.Log.error("", e);
+                    context.getSource().sendError(Text.translatable("text.filereader.exception", e.getClass().getCanonicalName(), e.getMessage()));
+                    return -1;
+                }
+            });
+            variables.Log.info("Command FileReader File Get from player " + entity.getEntityName());
+        } catch (CommandSyntaxException syntaxException) {
+            throw syntaxException;
+        } catch (java.lang.Exception ex) {
+            context.getSource().sendError(Text.translatable("text.filereader.exception", ex.getClass().getCanonicalName(), ex.getMessage()));
+            throw new SimpleCommandExceptionType(Text.literal(ex.getMessage())).create();
+        }
+        return 0;
+    }
+
     public static int GetFileContext(CommandContext<ServerCommandSource> context, FileSource fileSource, @Nullable Entity ent) throws CommandSyntaxException {
         try {
             sender sender = GetSender(context);
@@ -132,7 +185,7 @@ public class filereader {
                 variables.Log.info("Command FileReader File Get from server console");
                 return PrintConsole(context, FileAddress, fileSource);
             }
-            boolean self =ent==null;
+            boolean self = ent==null || context.getSource().getEntity() == ent ;
             Entity entity;
             if ( ent == null ) entity = source.getEntityOrThrow();
             else entity = ent;
