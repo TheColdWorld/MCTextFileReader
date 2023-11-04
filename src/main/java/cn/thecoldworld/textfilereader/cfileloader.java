@@ -1,6 +1,9 @@
 package cn.thecoldworld.textfilereader;
 
 
+import cn.thecoldworld.textfilereader.networking.Identifiers;
+import cn.thecoldworld.textfilereader.networking.Tasks;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -23,6 +26,12 @@ import java.util.concurrent.CompletableFuture;
 public class cfileloader {
     public static void init(@NotNull CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(ClientCommandManager.literal("cFileLoader")
+                .then(ClientCommandManager.literal("Debug")
+                        .executes(i -> {
+                            Tasks.Task.Run(new JsonObject(), Identifiers.DebugFileIdentifier,
+                                    (arguments -> i.getSource().sendFeedback(Text.literal(arguments.value.get("tmp").getAsString()))));
+                            return 0;
+                        }))
                 .then(ClientCommandManager.literal("List")
                         .executes(cfileloader::CPrintFileList))
                 .then(ClientCommandManager.literal("Read")

@@ -23,7 +23,8 @@ public class FileIO {
         if ( world.isClient ) return -1;
         Scanner fp;
         switch (fileSource) {
-            case save -> fp = new Scanner(Paths.get(Objects.requireNonNull(world.getServer()).getSavePath(WorldSavePath.ROOT).getParent().toString(), "Texts", Filename), StandardCharsets.UTF_8);
+            case save ->
+                    fp = new Scanner(Paths.get(Objects.requireNonNull(world.getServer()).getSavePath(WorldSavePath.ROOT).getParent().toString(), "Texts", Filename), StandardCharsets.UTF_8);
             case global -> fp = new Scanner(Paths.get(GlobalTextPath.toString(), Filename), StandardCharsets.UTF_8);
             default -> throw new IOException("Internal error");
         }
@@ -49,7 +50,8 @@ public class FileIO {
         if ( world.isClient ) return -1;
         Scanner fp;
         switch (fileSource) {
-            case save -> fp = new Scanner(Paths.get(Objects.requireNonNull(world.getServer()).getSavePath(WorldSavePath.ROOT).getParent().toString(), "Texts", Filename), StandardCharsets.UTF_8);
+            case save ->
+                    fp = new Scanner(Paths.get(Objects.requireNonNull(world.getServer()).getSavePath(WorldSavePath.ROOT).getParent().toString(), "Texts", Filename), StandardCharsets.UTF_8);
             case global -> fp = new Scanner(Paths.get(GlobalTextPath.toString(), Filename), StandardCharsets.UTF_8);
             default -> throw new IOException("Internal error");
         }

@@ -1,10 +1,7 @@
 package cn.thecoldworld.textfilereader.screen;
 
-import cn.thecoldworld.textfilereader.variables;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -13,12 +10,12 @@ import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 @Environment (EnvType.CLIENT)
-public class SettingsGUI extends Screen {
-   @NotNull
-   private final Screen prevScreen;
-   //private ScrollableTextWidget TextList;
+public class MainGUI extends Screen {
+    @NotNull
+    private final Screen prevScreen;
+    //private ScrollableTextWidget TextList;
 
-    public SettingsGUI(@NotNull Screen prevScreen) {
+    public MainGUI(@NotNull Screen prevScreen) {
         super(Text.literal("Test"));
         //TextList=new ScrollableTextWidget(0,0,0,0,Text.empty(),textRenderer);
         this.prevScreen = prevScreen;
@@ -27,7 +24,7 @@ public class SettingsGUI extends Screen {
     @Override
     protected void init() {
         ButtonWidget button1 = ButtonWidget.builder(Text.literal("按钮 1"), button -> {
-                    ClientPlayNetworking.send(variables.TextFileIdentifier_get, PacketByteBufs.empty());
+                    //ClientPlayNetworking.send(Identifiers.TextFileIdentifier_get, PacketByteBufs.empty());
                 })
                 .dimensions(width / 2 - 205, 20, 200, 20)
                 .tooltip(Tooltip.of(Text.literal("按钮 1 的提示")))
@@ -40,14 +37,15 @@ public class SettingsGUI extends Screen {
         addDrawableChild(button1);
         //addDrawableChild(TextList);
     }
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         //MultilineText.create(textRenderer, Text.literal("这个文本很长 ".repeat(20)), width - 20).drawWithShadow(context, 10, height / 2, 16, 0xffffff);
     }
+
     @Override
-    public void close()
-    {
+    public void close() {
         client.setScreen(prevScreen);
     }
 }

@@ -13,43 +13,41 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public abstract class funcitons {
-    public static boolean CreateFile(File file,String DefaultInput) throws Exception{
-        if( file.exists() && file.isFile()) throw new Exception("File exist");
+    public static boolean CreateFile(File file, String DefaultInput) throws Exception {
+        if ( file.exists() && file.isFile() ) throw new Exception("File exist");
         try {
-           if(! file.createNewFile()) return false;
-           FileWriter fr = new FileWriter(file);
-           fr.write(DefaultInput);
-           fr.flush();fr.close();
-           return true;
+            if ( !file.createNewFile() ) return false;
+            FileWriter fr = new FileWriter(file);
+            fr.write(DefaultInput);
+            fr.flush();
+            fr.close();
+            return true;
         } catch (IOException e) {
-            variables.Log.error("",e);
+            variables.Log.error("", e);
             return false;
         }
     }
-    public static boolean CreateDir(Path path) throws Exception
-    {
+
+    public static boolean CreateDir(Path path) throws Exception {
         Path _path = path.toAbsolutePath().normalize();
-        if(_path.toFile().exists() && _path.toFile().isDirectory()) throw new Exception("Dir exist");
-        try
-        {
-            if(!_path.getParent().toFile().exists() || !_path.getParent().toFile().isDirectory()) CreateDir(_path.getParent());
+        if ( _path.toFile().exists() && _path.toFile().isDirectory() ) throw new Exception("Dir exist");
+        try {
+            if ( !_path.getParent().toFile().exists() || !_path.getParent().toFile().isDirectory() )
+                CreateDir(_path.getParent());
             Files.createDirectory(path);
             return true;
-        }
-        catch (IOException e)
-        {
-            variables.Log.error("",e);
+        } catch (IOException e) {
+            variables.Log.error("", e);
             return false;
         }
     }
-    public static String GetFilePrefix(@NotNull File fp)
-    {
-        if(fp.exists() && fp.isFile()) return fp.getName().substring(fp.getName().lastIndexOf(".")+1);
+
+    public static String GetFilePrefix(@NotNull File fp) {
+        if ( fp.exists() && fp.isFile() ) return fp.getName().substring(fp.getName().lastIndexOf(".") + 1);
         return "";
     }
 
-    public static void OnWorldLoading(MinecraftServer server, ServerWorld world)
-    {
+    public static void OnWorldLoading(MinecraftServer server, ServerWorld world) {
         Path PermissionPath = server.getSavePath(WorldSavePath.ROOT).toAbsolutePath().resolve("Texts").resolve("permissions.json").normalize();
         if ( !PermissionPath.getParent().normalize().toFile().exists() || !PermissionPath.getParent().normalize().toFile().isDirectory() ) {
             try {
@@ -57,25 +55,25 @@ public abstract class funcitons {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (Exception e) {
-                if(!e.getMessage().equals("Dir exist")) throw new RuntimeException(e);
+                if ( !e.getMessage().equals("Dir exist") ) throw new RuntimeException(e);
             }
         }
         if ( !PermissionPath.toFile().exists() || !PermissionPath.toFile().isFile() ) {
             variables.Log.info("Missing world text data permission file,starting crate");
             try {
-                funcitons.CreateFile(PermissionPath.toFile(),"{\"Files\":[]}");
+                funcitons.CreateFile(PermissionPath.toFile(), "{\"Files\":[]}");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (Exception e) {
-                if(!e.getMessage().equals("File exist")) throw new RuntimeException(e);
+                if ( !e.getMessage().equals("File exist") ) throw new RuntimeException(e);
             }
         }
         FilePermissions.WorldTextPermission = FilePermissions.InitPermission(PermissionPath);
-        variables.IsWorldLoaded=true;
+        variables.IsWorldLoaded = true;
     }
-    public  static  void OnUpdateThread()
-    {
-        if(!variables.IsWorldLoaded)return;
+
+    public static void OnUpdateThread() {
+        if ( !variables.IsWorldLoaded ) return;
         try {
             if ( variables.TickEvent.isEmpty() ) {
                 FilePermissions.GlobalTextPermission.UpdateFile();
@@ -86,9 +84,8 @@ public abstract class funcitons {
                 return;
             }
             variables.TickEvent.take().run();
-        } catch (Exception e)
-        {
-            variables.Log.error("",e);
+        } catch (Exception e) {
+            variables.Log.error("", e);
         }
     }
 }

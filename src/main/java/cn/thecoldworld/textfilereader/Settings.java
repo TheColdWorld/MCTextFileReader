@@ -13,20 +13,19 @@ import java.util.Objects;
 
 public class Settings {
     @Expose
-    public boolean Segmentedoutput;
+    public final boolean Segmentedoutput;
     @Expose
-    public boolean RemoveInvalidFile;
+    public final boolean RemoveInvalidFile;
     public transient boolean NeedUpdate;
-    public Settings()
-    {
-        Segmentedoutput=false;
-        RemoveInvalidFile =false;
-        NeedUpdate=true;
+
+    public Settings() {
+        Segmentedoutput = false;
+        RemoveInvalidFile = false;
+        NeedUpdate = true;
     }
-    public static Settings GetSettings()
-    {
-        if(!FileIO.ConfigPath.toFile().exists() || ! FileIO.ConfigPath.toFile().isFile())
-        {
+
+    public static Settings GetSettings() {
+        if ( !FileIO.ConfigPath.toFile().exists() || !FileIO.ConfigPath.toFile().isFile() ) {
             return new Settings();
         }
         Gson gson = new GsonBuilder()
@@ -34,15 +33,16 @@ public class Settings {
                 .excludeFieldsWithoutExposeAnnotation()
                 .create();
         try {
-            Settings set =gson.fromJson(String.join("", Files.readAllLines(FileIO.ConfigPath)), Settings.class);
+            Settings set = gson.fromJson(String.join("", Files.readAllLines(FileIO.ConfigPath)), Settings.class);
             return Objects.requireNonNullElseGet(set, Settings::new);
         } catch (IOException e) {
             return new Settings();
         }
     }
+
     public void UptoFile() throws IOException {
-        if(!NeedUpdate) return;
-        variables.Log.debug(this.getClass().getCanonicalName()+"Updating");
+        if ( !NeedUpdate ) return;
+        variables.Log.debug(this.getClass().getCanonicalName() + "Updating");
         Gson gson = new GsonBuilder()
                 .enableComplexMapKeySerialization()
                 .excludeFieldsWithoutExposeAnnotation()
@@ -51,6 +51,6 @@ public class Settings {
         fp.write(gson.toJson(this));
         fp.flush();
         fp.close();
-        NeedUpdate=false;
+        NeedUpdate = false;
     }
 }
