@@ -49,7 +49,7 @@ public class cfileloader {
         try {
             String Fileaddress = context.getArgument("FileName", String.class);
             Scanner fp = new Scanner(Paths.get(FileIO.GlobalTextPath.toString(), Fileaddress), StandardCharsets.UTF_8);
-            if ( variables.ModSettings.Segmentedoutput ) {
+            if ( variables.ModSettings.isSegmentedOutput() ) {
                 context.getSource().sendFeedback(Text.translatable("text.filereader.printfile", Fileaddress, ""));
                 while (fp.hasNext()) {
                     context.getSource().sendFeedback(Text.literal(fp.nextLine()));
@@ -77,7 +77,7 @@ public class cfileloader {
                 variables.Log.info("Missing client text data directory,starting crate");
                 Files.createDirectory(Path);
             }
-            if ( variables.ModSettings.Segmentedoutput ) {
+            if ( variables.ModSettings.isSegmentedOutput() ) {
                 FabricClientCommandSource src = context.getSource();
                 CompletableFuture.supplyAsync(() -> {
                     src.sendFeedback(Text.translatable("text.filereader.printcurrentpath", ""));

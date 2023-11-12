@@ -1,9 +1,8 @@
 package cn.thecoldworld.textfilereader.networking;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import cn.thecoldworld.textfilereader.variables;
 import com.google.gson.JsonObject;
-import net.minecraft.network.PacketByteBuf;
+import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,38 +12,44 @@ import java.nio.charset.StandardCharsets;
 public class SendNetworkPackage extends NetWorkPackage {
 
     public final boolean NeedResponse;
-    public transient final Gson internalGson;
+    public final String ResponseType;
 
-    public SendNetworkPackage() {
-        super(new JsonObject());
-        NeedResponse = false;
-        internalGson = new GsonBuilder().create();
-    }
 
-    public SendNetworkPackage(Gson gson) {
-        super(new JsonObject());
-        NeedResponse = false;
-        internalGson = gson;
-    }
-
-    public SendNetworkPackage(JsonObject body, boolean needResponse) {
-        super(body);
+    public SendNetworkPackage(JsonObject body, String responseType, String identifier, boolean needResponse) {
+        super(body, identifier);
         NeedResponse = needResponse;
-        internalGson = new GsonBuilder().create();
+        ResponseType = responseType;
+    }
+
+    public SendNetworkPackage(JsonObject body, String identifier, boolean needResponse) {
+        super(body, identifier);
+        NeedResponse = needResponse;
+        ResponseType = "Json";
     }
 
     public static @NotNull SendNetworkPackage GetPackage(@NotNull String Json) {
-        return new GsonBuilder().create().fromJson(Json, SendNetworkPackage.class);
+        return variables.defaultGson.fromJson(Json, SendNetworkPackage.class);
     }
 
-    public static @NotNull SendNetworkPackage GetPackage(@NotNull PacketByteBuf bytes, @Nullable Charset Charset) {
+    public static @NotNull SendNetworkPackage GetPackage(@NotNull ByteBuf bytes, @Nullable Charset Charset) {
         Charset charset;
         if ( Charset == null ) charset = StandardCharsets.UTF_8;
         else charset = Charset;
-        return new GsonBuilder().create().fromJson(new String(bytes.array(), charset).trim(), SendNetworkPackage.class);
+        return variables.defaultGson.fromJson(new String(bytes.array(), charset).trim(), SendNetworkPackage.class);
+    }
+
+    public static boolean IsSendPackage(String Json) {
+        return variables.defaultGson.fromJson(Json, SendNetworkPackage.class).ResponseType != null;
+    }
+
+    public static boolean IsSendPackage(@NotNull ByteBuf bytes, @Nullable Charset Charset) {
+        Charset charset;
+        if ( Charset == null ) charset = StandardCharsets.UTF_8;
+        else charset = Charset;
+        return variables.defaultGson.fromJson(new String(bytes.array(), charset).trim(), SendNetworkPackage.class).ResponseType != null;
     }
 
     public String ToJson() {
-        return internalGson.toJson(this, this.getClass());
+        return variables.defaultGson.toJson(this, this.getClass());
     }
 }

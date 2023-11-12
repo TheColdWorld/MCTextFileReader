@@ -72,7 +72,7 @@ public class FilePermissions {
             });
             Files.forEach(i -> {
                 if ( !Paths.get(FilePath.getParent(), i.Name).toFile().exists() || !Paths.get(FilePath.getParent(), i.Name).toFile().isFile() ) {
-                    if ( variables.ModSettings.RemoveInvalidFile ) {
+                    if ( variables.ModSettings.isRemoveInvalidFile() ) {
                         variables.TickEvent.add(() -> {
                             Files.remove(i);
                             NeedUpdate = true;

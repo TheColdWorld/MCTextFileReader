@@ -28,7 +28,7 @@ public class FileIO {
             case global -> fp = new Scanner(Paths.get(GlobalTextPath.toString(), Filename), StandardCharsets.UTF_8);
             default -> throw new IOException("Internal error");
         }
-        if ( variables.ModSettings.Segmentedoutput ) {
+        if ( variables.ModSettings.isSegmentedOutput() ) {
             entity.sendMessage(Text.translatable("text.filereader.printfile", Filename, ""));
             while (fp.hasNext()) {
                 entity.sendMessage(Text.literal(fp.nextLine()));
@@ -55,7 +55,7 @@ public class FileIO {
             case global -> fp = new Scanner(Paths.get(GlobalTextPath.toString(), Filename), StandardCharsets.UTF_8);
             default -> throw new IOException("Internal error");
         }
-        if ( variables.ModSettings.Segmentedoutput ) {
+        if ( variables.ModSettings.isSegmentedOutput() ) {
             entity.sendMessage(Text.translatable("text.filereader.printfile", Filename, ""));
             for (int i = 0; i <= end && fp.hasNextLine(); i++) {
                 if ( i >= begin ) {

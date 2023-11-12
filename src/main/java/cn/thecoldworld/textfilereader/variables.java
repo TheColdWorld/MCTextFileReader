@@ -1,5 +1,6 @@
 package cn.thecoldworld.textfilereader;
 
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,4 +15,6 @@ public abstract class variables {
     public static ThreadPool threadPool = null;
     public static boolean IsWorldLoaded = false;
     public static Settings ModSettings;
+
+    public static Gson defaultGson;
 }

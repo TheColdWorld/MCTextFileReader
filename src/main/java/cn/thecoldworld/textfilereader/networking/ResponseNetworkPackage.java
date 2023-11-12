@@ -1,52 +1,46 @@
 package cn.thecoldworld.textfilereader.networking;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import cn.thecoldworld.textfilereader.variables;
 import com.google.gson.JsonObject;
-import net.minecraft.network.PacketByteBuf;
-import org.jetbrains.annotations.NotNull;
+import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class ResponseNetworkPackage {
+public class ResponseNetworkPackage extends NetWorkPackage {
 
-    private final @Nullable NetWorkPackage netWorkPackage;
-    private final @Nullable String ResponseID;
+    public final String ResponseID;
 
-    public ResponseNetworkPackage(@NotNull String Json) {
-        Gson internalGson = new GsonBuilder().create();
-        JsonObject jsonObject = internalGson.fromJson(Json, JsonObject.class);
-        netWorkPackage = internalGson.fromJson(jsonObject.getAsJsonObject("netWorkPackage").toString(), NetWorkPackage.class);
-        ResponseID = jsonObject.get("ResponseID").getAsString();
+    public ResponseNetworkPackage(JsonObject body, String requestID) {
+        super(body, "TextFileReader::Response");
+        this.ResponseID = requestID;
     }
 
-    public ResponseNetworkPackage(@NotNull JsonObject ResponsePackageInformation, @NotNull String ResponseID) {
-        this.ResponseID = ResponseID;
-        this.netWorkPackage = new SendNetworkPackage(ResponsePackageInformation, false);
+    public static ResponseNetworkPackage GetPackage(String Json) {
+        return variables.defaultGson.fromJson(Json, ResponseNetworkPackage.class);
     }
 
-    public static @NotNull ResponseNetworkPackage GetPackage(@NotNull String Json) {
-        return new ResponseNetworkPackage(Json);
+    public static ResponseNetworkPackage GetPackage(ByteBuf byteBuf, Charset charset) {
+        return variables.defaultGson.fromJson(new String(byteBuf.array(), charset).trim(), ResponseNetworkPackage.class);
     }
 
-    public static @NotNull ResponseNetworkPackage GetPackage(@NotNull PacketByteBuf bytes, @Nullable Charset Charset) {
+    public static boolean IsResponse(String Json) {
+        return variables.defaultGson.fromJson(Json, ResponseNetworkPackage.class).ResponseID == null;
+    }
+
+    public static boolean IsResponse(ByteBuf byteBuf, @Nullable Charset Charset) {
         Charset charset;
         if ( Charset == null ) charset = StandardCharsets.UTF_8;
         else charset = Charset;
-        return new ResponseNetworkPackage(new String(bytes.array(), charset).trim());
+        return variables.defaultGson.fromJson(new String(byteBuf.array(), charset).trim(), ResponseNetworkPackage.class).ResponseID != null;
+    }
+
+    public static boolean IsResponse(JsonObject Json) {
+        return Json.get("ResponseID") == null;
     }
 
     public String ToJson() {
-        return new GsonBuilder().create().toJson(this, ResponseNetworkPackage.class);
-    }
-
-    public @Nullable NetWorkPackage getNetWorkPackage() {
-        return netWorkPackage;
-    }
-
-    public @Nullable String getResponseID() {
-        return ResponseID;
+        return variables.defaultGson.toJson(this, ResponseNetworkPackage.class);
     }
 }

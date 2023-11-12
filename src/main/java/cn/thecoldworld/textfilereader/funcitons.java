@@ -73,14 +73,25 @@ public abstract class funcitons {
     }
 
     public static void OnUpdateThread() {
+        if ( variables.ModSettings != null ) {
+            try {
+                variables.ModSettings.UptoFile();
+            } catch (IOException e) {
+                variables.Log.error("", e);
+            }
+        }
         if ( !variables.IsWorldLoaded ) return;
+        try {
+            Thread.sleep(0);
+        } catch (InterruptedException e) {
+            variables.Log.error("", e);
+        }
         try {
             if ( variables.TickEvent.isEmpty() ) {
                 FilePermissions.GlobalTextPermission.UpdateFile();
                 FilePermissions.WorldTextPermission.UpdateFile();
                 FilePermissions.GlobalTextPermission.UpToFile();
                 FilePermissions.WorldTextPermission.UpToFile();
-                variables.ModSettings.UptoFile();
                 return;
             }
             variables.TickEvent.take().run();

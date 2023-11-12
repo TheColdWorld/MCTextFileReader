@@ -26,8 +26,8 @@ public class client implements ClientModInitializer {
                 client.setScreen(new MainGUI(client.currentScreen));
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(Identifiers.TextFileIdentifier,
-                (client, handler, buf, responseSender) -> Tasks.GetNetPackageCallback(client, handler, buf, responseSender, Identifiers.TextFileIdentifier));
+        ClientPlayNetworking.registerGlobalReceiver(Identifiers.TextFileNetworkingIdentifier,
+                (client, handler, buf, responseSender) -> Tasks.GetNetPackageCallback(client, handler, buf, responseSender, Identifiers.TextFileNetworkingIdentifier));
         ClientPlayNetworking.registerGlobalReceiver(Identifiers.DebugFileIdentifier, (client, handler, buf, responseSender) -> Tasks.GetNetPackageCallback(client, handler, buf, responseSender, Identifiers.DebugFileIdentifier));
     }
 }

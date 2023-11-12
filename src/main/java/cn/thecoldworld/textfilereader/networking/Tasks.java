@@ -25,33 +25,45 @@ public final class Tasks {
 
 
     public static void GetNetPackageCallback(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender, Identifier textFileIdentifier) {
-        ResponseNetworkPackage responseNetworkPackage = ResponseNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8);
-        if ( responseNetworkPackage.getNetWorkPackage() == null || responseNetworkPackage.getResponseID() == null )
-            return;
-        TaskPool_Server.stream()
-                .filter(i -> i.envType == EnvType.SERVER)
-                .filter(i -> !i.Returned)
-                .filter(i -> i.PackageID.equals(responseNetworkPackage.getResponseID()))
-                .forEach(i -> i.Return(new Task.Arguments(server, player, responseNetworkPackage.getNetWorkPackage().Body)));
-        Events.C2SPackageEvent.InvokeAsync(new C2SEventArgs(server, player, handler, buf, responseSender, textFileIdentifier));
+        if ( ResponseNetworkPackage.IsResponse(buf, StandardCharsets.UTF_8) ) {
+            ResponseNetworkPackage responseNetworkPackage = ResponseNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8);
+            if ( responseNetworkPackage == null || responseNetworkPackage.ResponseID == null )
+                return;
+            TaskPool_Server.stream()
+                    .filter(i -> i.envType == EnvType.SERVER)
+                    .filter(i -> !i.Returned)
+                    .filter(i -> i.PackageID.equals(responseNetworkPackage.ResponseID))
+                    .forEach(i -> i.Return(new Task.Arguments(server, player, responseNetworkPackage.Body)));
+        } else if ( SendNetworkPackage.IsSendPackage(buf, StandardCharsets.UTF_8) ) {
+            NetworkingFunctions.OnReceiveSedPackage(server, player, textFileIdentifier, SendNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8));
+        } else {
+            Events.C2SPackageEvent.InvokeAsync(new C2SEventArgs(server, player, handler, buf, responseSender, textFileIdentifier));
+        }
     }
 
 
     public static void GetNetPackageCallback(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender, Identifier textFileIdentifier) {
-        ResponseNetworkPackage responseNetworkPackage = ResponseNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8);
-        if ( responseNetworkPackage.getNetWorkPackage() == null || responseNetworkPackage.getResponseID() == null )
-            return;
-        TaskPool_Client.stream()
-                .filter(i -> i.envType == EnvType.CLIENT)
-                .filter(i -> !i.Returned)
-                .filter(i -> i.PackageID.equals(responseNetworkPackage.getResponseID()))
-                .forEach(i -> i.Return(new Task.Arguments(client, responseNetworkPackage.getNetWorkPackage().Body)));
-        Events.S2CPackageEvent.InvokeAsync(new S2CEventArgs(client, handler, buf, responseSender, textFileIdentifier));
+        if ( ResponseNetworkPackage.IsResponse(buf, StandardCharsets.UTF_8) ) {
+            ResponseNetworkPackage responseNetworkPackage = ResponseNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8);
+            if ( responseNetworkPackage == null || responseNetworkPackage.ResponseID == null )
+                return;
+            TaskPool_Client.stream()
+                    .filter(i -> i.envType == EnvType.CLIENT)
+                    .filter(i -> !i.Returned)
+                    .filter(i -> i.PackageID.equals(responseNetworkPackage.ResponseID))
+                    .forEach(i -> i.Return(new Task.Arguments(client, responseNetworkPackage.Body)));
+
+        } else if ( SendNetworkPackage.IsSendPackage(buf, StandardCharsets.UTF_8) ) {
+            NetworkingFunctions.OnReceiveSedPackage(client, textFileIdentifier, SendNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8));
+        } else {
+            Events.S2CPackageEvent.InvokeAsync(new S2CEventArgs(client, handler, buf, responseSender, textFileIdentifier));
+        }
+
     }
 
     public static final class Task {
         public final boolean NeedResponse;
-        public final String sendnetWorkPackage;
+        public final String SendNetworkPackage;
         public final String PackageID;
         public final Identifier identifier;
         public final EnvType envType;
@@ -59,8 +71,8 @@ public final class Tasks {
         private boolean Returned;
 
         public Task(JsonObject SendPackageInformation, Identifier identifier, EnvType envType, Consumer<Arguments> callback) {
-            SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, true);
-            sendnetWorkPackage = p.ToJson();
+            SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, "Json", true);
+            SendNetworkPackage = p.ToJson();
             this.identifier = identifier;
             this.callback = callback;
             this.envType = envType;
@@ -69,8 +81,8 @@ public final class Tasks {
         }
 
         public Task(JsonObject SendPackageInformation, Identifier identifier, EnvType envType) {
-            SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, true);
-            sendnetWorkPackage = p.ToJson();
+            SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, "Json", true);
+            SendNetworkPackage = p.ToJson();
             this.identifier = identifier;
             this.callback = arguments -> {
             };
@@ -81,22 +93,22 @@ public final class Tasks {
 
         public Task(JsonObject ResponsePackageInformation, String ResponseID, Identifier identifier, EnvType envType, Consumer<Arguments> callback) {
             ResponseNetworkPackage p = new ResponseNetworkPackage(ResponsePackageInformation, ResponseID);
-            sendnetWorkPackage = p.ToJson();
+            SendNetworkPackage = p.ToJson();
             this.identifier = identifier;
             this.callback = callback;
             this.envType = envType;
-            PackageID = p.getNetWorkPackage().ID;
+            PackageID = p.ID;
             NeedResponse = false;
         }
 
         public Task(JsonObject ResponsePackageInformation, String ResponseID, Identifier identifier, EnvType envType) {
             ResponseNetworkPackage p = new ResponseNetworkPackage(ResponsePackageInformation, ResponseID);
-            sendnetWorkPackage = p.ToJson();
+            SendNetworkPackage = p.ToJson();
             this.identifier = identifier;
             this.callback = arguments -> {
             };
             this.envType = envType;
-            PackageID = p.getNetWorkPackage().ID;
+            PackageID = p.ID;
             NeedResponse = false;
         }
 
@@ -131,7 +143,7 @@ public final class Tasks {
         public void Send() {
             if ( envType == EnvType.CLIENT ) {
                 var packagebyte = PacketByteBufs.create();
-                packagebyte.writeBytes(sendnetWorkPackage.getBytes(StandardCharsets.UTF_8));
+                packagebyte.writeBytes(SendNetworkPackage.getBytes(StandardCharsets.UTF_8));
                 if ( NeedResponse ) TaskPool_Client.add(this);
                 ClientPlayNetworking.send(identifier, packagebyte);
             }
@@ -141,7 +153,7 @@ public final class Tasks {
         public void Send(ServerPlayerEntity sendto) {
             if ( envType == EnvType.SERVER ) {
                 var packagebyte = PacketByteBufs.create();
-                packagebyte.writeBytes(sendnetWorkPackage.getBytes(StandardCharsets.UTF_8));
+                packagebyte.writeBytes(SendNetworkPackage.getBytes(StandardCharsets.UTF_8));
                 if ( NeedResponse ) TaskPool_Server.add(this);
                 ServerPlayNetworking.send(sendto, identifier, packagebyte);
             }

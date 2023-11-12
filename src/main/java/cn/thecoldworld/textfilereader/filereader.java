@@ -111,7 +111,7 @@ public class filereader {
                 variables.Log.info("Missing server text data directory,starting crate");
                 Files.createDirectory(Path);
             }
-            if ( variables.ModSettings.Segmentedoutput ) {
+            if ( variables.ModSettings.isSegmentedOutput() ) {
                 ServerCommandSource src = context.getSource();
                 CompletableFuture.supplyAsync(() -> {
                     src.sendMessage(Text.translatable("text.filereader.printcurrentpath", ""));
@@ -235,7 +235,7 @@ public class filereader {
                 case global ->
                         new Scanner(Paths.get(FileIO.GlobalTextPath.toString(), FileName), StandardCharsets.UTF_8);
             };
-            if ( variables.ModSettings.Segmentedoutput ) {
+            if ( variables.ModSettings.isSegmentedOutput() ) {
                 variables.Log.info(Text.translatable("text.filereader.printfile", FileName, "").asTruncatedString(100));
                 while (fp.hasNext()) {
                     variables.Log.info(fp.nextLine());
