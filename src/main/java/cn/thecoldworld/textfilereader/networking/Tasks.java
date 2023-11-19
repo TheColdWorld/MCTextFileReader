@@ -24,7 +24,7 @@ public final class Tasks {
     public static LinkedList<Task> TaskPool_Client;
 
 
-    public static void GetNetPackageCallback(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender, Identifier textFileIdentifier) {
+    public static void GetNetPackageCallback(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender, Identifier Identifier) {
         if ( ResponseNetworkPackage.IsResponse(buf, StandardCharsets.UTF_8) ) {
             ResponseNetworkPackage responseNetworkPackage = ResponseNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8);
             if ( responseNetworkPackage == null || responseNetworkPackage.ResponseID == null )
@@ -35,14 +35,14 @@ public final class Tasks {
                     .filter(i -> i.PackageID.equals(responseNetworkPackage.ResponseID))
                     .forEach(i -> i.Return(new Task.Arguments(server, player, responseNetworkPackage.Body)));
         } else if ( SendNetworkPackage.IsSendPackage(buf, StandardCharsets.UTF_8) ) {
-            NetworkingFunctions.OnReceiveSedPackage(server, player, textFileIdentifier, SendNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8));
+            NetworkingFunctions.OnReceiveSedPackage(server, player, Identifier, SendNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8));
         } else {
-            Events.C2SPackageEvent.InvokeAsync(new C2SEventArgs(server, player, handler, buf, responseSender, textFileIdentifier));
+            Events.C2SPackageEvent.InvokeAsync(server, player, handler, buf, responseSender, Identifier);
         }
     }
 
 
-    public static void GetNetPackageCallback(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender, Identifier textFileIdentifier) {
+    public static void GetNetPackageCallback(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender, Identifier Identifier) {
         if ( ResponseNetworkPackage.IsResponse(buf, StandardCharsets.UTF_8) ) {
             ResponseNetworkPackage responseNetworkPackage = ResponseNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8);
             if ( responseNetworkPackage == null || responseNetworkPackage.ResponseID == null )
@@ -54,9 +54,9 @@ public final class Tasks {
                     .forEach(i -> i.Return(new Task.Arguments(client, responseNetworkPackage.Body)));
 
         } else if ( SendNetworkPackage.IsSendPackage(buf, StandardCharsets.UTF_8) ) {
-            NetworkingFunctions.OnReceiveSedPackage(client, textFileIdentifier, SendNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8));
+            NetworkingFunctions.OnReceiveSedPackage(client, Identifier, SendNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8));
         } else {
-            Events.S2CPackageEvent.InvokeAsync(new S2CEventArgs(client, handler, buf, responseSender, textFileIdentifier));
+            Events.S2CPackageEvent.InvokeAsync(client, handler, buf, responseSender, Identifier);
         }
 
     }
@@ -82,6 +82,27 @@ public final class Tasks {
 
         public Task(JsonObject SendPackageInformation, Identifier identifier, EnvType envType) {
             SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, "Json", true);
+            SendNetworkPackage = p.ToJson();
+            this.identifier = identifier;
+            this.callback = arguments -> {
+            };
+            this.envType = envType;
+            PackageID = p.ID;
+            NeedResponse = p.NeedResponse;
+        }
+
+        public Task(JsonObject SendPackageInformation, Identifier identifier, EnvType envType, String ResponseType, Consumer<Arguments> callback) {
+            SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, ResponseType, "Json", true);
+            SendNetworkPackage = p.ToJson();
+            this.identifier = identifier;
+            this.callback = callback;
+            this.envType = envType;
+            PackageID = p.ID;
+            NeedResponse = p.NeedResponse;
+        }
+
+        public Task(JsonObject SendPackageInformation, Identifier identifier, EnvType envType, String ResponseType) {
+            SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, ResponseType, "Json", true);
             SendNetworkPackage = p.ToJson();
             this.identifier = identifier;
             this.callback = arguments -> {

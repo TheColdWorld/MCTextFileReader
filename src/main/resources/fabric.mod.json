@@ -32,7 +32,7 @@
     "minecraft": "${minecraft_version}"
   } ,
   "suggests": {
-    "modmenu": ">${modmenu_version}"
+    "modmenu": ">=${modmenu_version}"
   } ,
   "custom": {
     "modmenu": {

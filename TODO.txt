@@ -2,5 +2,3 @@ This file will use Chinese
 
 未来将可能做的事情：
 1.文件读取的GUI
-2.设置GUI
-3.分行读取文件

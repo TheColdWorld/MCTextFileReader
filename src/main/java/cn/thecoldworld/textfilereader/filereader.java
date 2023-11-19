@@ -463,6 +463,20 @@ public class filereader {
         return 0;
     }
 
+    public static boolean HavePermission(ServerPlayerEntity player, String FileName, FileSource fileSource) {
+        boolean Online_Mode;
+        if ( player.getServer() == null ) Online_Mode = false;
+        else Online_Mode = player.getServer().isOnlineMode();
+        try {
+            return switch (fileSource) {
+                case global -> FilePermissions.GlobalTextPermission.HavePermission(player, FileName, Online_Mode);
+                case save -> FilePermissions.WorldTextPermission.HavePermission(player, FileName, Online_Mode);
+            };
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     public static sender GetSender(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         Entity sender = source.getEntity();

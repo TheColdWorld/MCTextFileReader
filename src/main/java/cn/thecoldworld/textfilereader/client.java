@@ -1,6 +1,5 @@
 package cn.thecoldworld.textfilereader;
 
-import cn.thecoldworld.textfilereader.networking.Identifiers;
 import cn.thecoldworld.textfilereader.networking.Tasks;
 import cn.thecoldworld.textfilereader.screen.MainGUI;
 import net.fabricmc.api.ClientModInitializer;
@@ -16,7 +15,7 @@ import java.util.LinkedList;
 public class client implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> cfileloader.init(dispatcher));
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> cFileReader.init(dispatcher));
         KeyBindings.inGameGuiBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.filereader.gui.open", InputUtil.Type.SCANCODE, -1, "key.filereader.gui.open"
         ));
@@ -26,8 +25,8 @@ public class client implements ClientModInitializer {
                 client.setScreen(new MainGUI(client.currentScreen));
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(Identifiers.TextFileNetworkingIdentifier,
-                (client, handler, buf, responseSender) -> Tasks.GetNetPackageCallback(client, handler, buf, responseSender, Identifiers.TextFileNetworkingIdentifier));
-        ClientPlayNetworking.registerGlobalReceiver(Identifiers.DebugFileIdentifier, (client, handler, buf, responseSender) -> Tasks.GetNetPackageCallback(client, handler, buf, responseSender, Identifiers.DebugFileIdentifier));
+        ClientPlayNetworking.registerGlobalReceiver(variables.Identifiers.TextFileNetworkingIdentifier,
+                (client, handler, buf, responseSender) -> Tasks.GetNetPackageCallback(client, handler, buf, responseSender, variables.Identifiers.TextFileNetworkingIdentifier));
+        ClientPlayNetworking.registerGlobalReceiver(variables.Identifiers.DebugFileIdentifier, (client, handler, buf, responseSender) -> Tasks.GetNetPackageCallback(client, handler, buf, responseSender, variables.Identifiers.DebugFileIdentifier));
     }
 }

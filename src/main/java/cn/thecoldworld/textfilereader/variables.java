@@ -1,6 +1,7 @@
 package cn.thecoldworld.textfilereader;
 
 import com.google.gson.Gson;
+import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,4 +18,9 @@ public abstract class variables {
     public static Settings ModSettings;
 
     public static Gson defaultGson;
+
+    public abstract static class Identifiers {
+        public static Identifier TextFileNetworkingIdentifier;
+        public static Identifier DebugFileIdentifier;
+    }
 }
