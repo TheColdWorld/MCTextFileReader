@@ -1,8 +1,5 @@
 package cn.thecoldworld.textfilereader;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.FileWriter;
@@ -14,28 +11,33 @@ import java.util.Objects;
 
 public class Settings {
     public transient boolean NeedUpdate;
-    @Expose
-    @SerializedName ("Segmentedoutput")
-    private boolean SegmentedOutput;
-    @Expose
     private boolean RemoveInvalidFile;
+    @SerializedName("Segmentedoutput")
+    private boolean SegmentedOutput;
+
+    public int getThreads() {
+        return Threads;
+    }
+
+    public void setThreads(int threads) {
+        Threads = threads;
+        this.NeedUpdate=true;
+    }
+
+    private int Threads;
+
 
     public Settings() {
         SegmentedOutput = false;
-        RemoveInvalidFile = false;
         NeedUpdate = true;
     }
 
     public static Settings GetSettings() {
-        if ( !FileIO.ConfigPath.toFile().exists() || !FileIO.ConfigPath.toFile().isFile() ) {
+        if (!FileIO.ConfigPath.toFile().exists() || !FileIO.ConfigPath.toFile().isFile()) {
             return new Settings();
         }
-        Gson gson = new GsonBuilder()
-                .enableComplexMapKeySerialization()
-                .excludeFieldsWithoutExposeAnnotation()
-                .create();
         try {
-            Settings set = gson.fromJson(String.join("", Files.readAllLines(FileIO.ConfigPath)), Settings.class);
+            Settings set = variables.defaultGson.fromJson(String.join("", Files.readAllLines(FileIO.ConfigPath)), Settings.class);
             set.NeedUpdate = false;
             return Objects.requireNonNullElseGet(set, Settings::new);
         } catch (IOException e) {
@@ -44,14 +46,10 @@ public class Settings {
     }
 
     public void UptoFile() throws IOException {
-        if ( !NeedUpdate ) return;
+        if (!NeedUpdate) return;
         variables.Log.debug(this.getClass().getCanonicalName() + "Updating");
-        Gson gson = new GsonBuilder()
-                .enableComplexMapKeySerialization()
-                .excludeFieldsWithoutExposeAnnotation()
-                .create();
         FileWriter fp = new FileWriter(FileIO.ConfigPath.toFile(), StandardCharsets.UTF_8, false);
-        fp.write(gson.toJson(this));
+        fp.write(variables.defaultGson.toJson(this));
         fp.flush();
         fp.close();
         NeedUpdate = false;

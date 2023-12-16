@@ -4,21 +4,22 @@ import cn.thecoldworld.textfilereader.FileSource;
 import cn.thecoldworld.textfilereader.variables;
 import com.google.gson.JsonObject;
 
-public class C2SGetContent implements ToJsonAble {
+public class C2SGetFileContent implements NetworkPackageContent {
     public final String FileName;
     public final String fileSource;
 
-    public C2SGetContent(String fileName, FileSource fileSource) {
+    public C2SGetFileContent(String fileName, FileSource fileSource) throws Exception {
         FileName = fileName;
         this.fileSource = switch (fileSource) {
             case global -> "Global";
             case save -> "Save";
+            case local -> throw new Exception("Cannot use FileSource.local");
         };
     }
 
-    public C2SGetContent(String Json) {
-        C2SGetContent i = variables.defaultGson.fromJson(Json, C2SGetContent.class);
-        if ( i.FileName == null || i.fileSource == null ) {
+    public C2SGetFileContent(String Json) {
+        C2SGetFileContent i = variables.defaultGson.fromJson(Json, C2SGetFileContent.class);
+        if (i.FileName == null || i.fileSource == null) {
             FileName = "";
             fileSource = "";
         } else {
@@ -27,20 +28,20 @@ public class C2SGetContent implements ToJsonAble {
         }
     }
 
-    public C2SGetContent(JsonObject Json) {
-        if ( !Json.has("FileName") || !Json.has("fileSource") ) {
+    public C2SGetFileContent(JsonObject Json) {
+        if (!Json.has("FileName") || !Json.has("ListFileSource")) {
             FileName = "";
             fileSource = "";
         } else {
             FileName = Json.get("FileName").getAsString();
-            fileSource = Json.get("fileSource").getAsString();
+            fileSource = Json.get("ListFileSource").getAsString();
         }
     }
 
     static public boolean IsInstance(String Json) {
         try {
             return variables.defaultGson.fromJson(Json, JsonObject.class).has("FileName") &&
-                    variables.defaultGson.fromJson(Json, JsonObject.class).has("fileSource");
+                    variables.defaultGson.fromJson(Json, JsonObject.class).has("ListFileSource");
         } catch (Throwable e) {
             return false;
         }
@@ -55,13 +56,13 @@ public class C2SGetContent implements ToJsonAble {
     }
 
     public String ToJson() {
-        return variables.defaultGson.toJson(this, C2SGetContent.class);
+        return variables.defaultGson.toJson(this, C2SGetFileContent.class);
     }
 
     public JsonObject ToJsonObject() {
         var i = new JsonObject();
         i.addProperty("FileName", FileName);
-        i.addProperty("fileSource", fileSource);
+        i.addProperty("ListFileSource", fileSource);
         return i;
     }
 }

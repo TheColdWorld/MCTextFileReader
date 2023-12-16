@@ -16,11 +16,14 @@ public abstract class variables {
     public static ThreadPool threadPool = null;
     public static boolean IsWorldLoaded = false;
     public static Settings ModSettings;
+    public static cn.thecoldworld.textfilereader.client.Settings ClientModSettings;
+    public static boolean IsClient = false;
 
-    public static Gson defaultGson;
+    public static Gson defaultGson = new Gson();
 
     public abstract static class Identifiers {
-        public static Identifier TextFileNetworkingIdentifier;
-        public static Identifier DebugFileIdentifier;
+        public final static Identifier TextFileListNetworkingIdentifier = new Identifier("textfilereader", "networking/textfilelist");
+        public final static Identifier TextFileNetworkingIdentifier = new Identifier("textfilereader", "networking/textfile");
+        public final static Identifier DebugFileIdentifier = new Identifier("textfilereader", "debug/test");
     }
 }

@@ -33,7 +33,7 @@ public class SendNetworkPackage extends NetWorkPackage {
 
     public static @NotNull SendNetworkPackage GetPackage(@NotNull ByteBuf bytes, @Nullable Charset Charset) {
         Charset charset;
-        if ( Charset == null ) charset = StandardCharsets.UTF_8;
+        if (Charset == null) charset = StandardCharsets.UTF_8;
         else charset = Charset;
         return variables.defaultGson.fromJson(new String(bytes.array(), charset).trim(), SendNetworkPackage.class);
     }
@@ -44,7 +44,7 @@ public class SendNetworkPackage extends NetWorkPackage {
 
     public static boolean IsSendPackage(@NotNull ByteBuf bytes, @Nullable Charset Charset) {
         Charset charset;
-        if ( Charset == null ) charset = StandardCharsets.UTF_8;
+        if (Charset == null) charset = StandardCharsets.UTF_8;
         else charset = Charset;
         return variables.defaultGson.fromJson(new String(bytes.array(), charset).trim(), SendNetworkPackage.class).ResponseType != null;
     }

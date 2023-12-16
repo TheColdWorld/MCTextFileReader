@@ -23,11 +23,11 @@ public class FilePermissions {
     public static Files WorldTextPermission = null;
 
     public static @NotNull Files InitPermission(Path FilePath) throws JsonSyntaxException {
-        if ( !FilePath.toFile().exists() || !FilePath.toFile().isFile() ) {
+        if (!FilePath.toFile().exists() || !FilePath.toFile().isFile()) {
             try {
                 funcitons.CreateFile(FilePath.toFile(), "");
             } catch (Exception e) {
-                if ( !e.getMessage().equals("File exist") ) variables.Log.error("", e);
+                if (!e.getMessage().equals("File exist")) variables.Log.error("", e);
             }
         }
         Gson gson = new GsonBuilder()
@@ -37,7 +37,7 @@ public class FilePermissions {
         Files FP;
         try {
             FP = gson.fromJson(String.join("", java.nio.file.Files.readAllLines(FilePath)), Files.class);
-            if ( FP == null ) FP = new Files();
+            if (FP == null) FP = new Files();
             FP.FilePath = FilePath.toFile();
             FP.UpdateFile();
         } catch (IOException e) {
@@ -59,9 +59,9 @@ public class FilePermissions {
 
         public void UpdateFile() throws IOException {
             java.nio.file.Files.walk(FilePath.getParentFile().toPath(), Integer.MAX_VALUE).filter(java.nio.file.Files::isRegularFile).forEach(i -> {
-                if ( i.getFileName().toString().equals("permissions.json") ) return;
-                if ( funcitons.GetFilePrefix(i.toFile()).equals("exe") ) return;
-                if ( Files.stream().anyMatch(m -> m.Name.equals(i.toFile().getName())) ) return;
+                if (i.getFileName().toString().equals("permissions.json")) return;
+                if (funcitons.GetFilePrefix(i.toFile()).equals("exe")) return;
+                if (Files.stream().anyMatch(m -> m.Name.equals(i.toFile().getName()))) return;
                 File fs = new File();
                 fs.Name = i.toFile().getName();
                 fs.Permissions = new ArrayList<>();
@@ -71,8 +71,8 @@ public class FilePermissions {
                 });
             });
             Files.forEach(i -> {
-                if ( !Paths.get(FilePath.getParent(), i.Name).toFile().exists() || !Paths.get(FilePath.getParent(), i.Name).toFile().isFile() ) {
-                    if ( variables.ModSettings.isRemoveInvalidFile() ) {
+                if (!Paths.get(FilePath.getParent(), i.Name).toFile().exists() || !Paths.get(FilePath.getParent(), i.Name).toFile().isFile()) {
+                    if (variables.ModSettings.isRemoveInvalidFile()) {
                         variables.TickEvent.add(() -> {
                             Files.remove(i);
                             NeedUpdate = true;
@@ -83,7 +83,7 @@ public class FilePermissions {
         }
 
         public void UpToFile() throws IOException {
-            if ( !NeedUpdate ) return;
+            if (!NeedUpdate) return;
             Gson gson = new GsonBuilder()
                     .enableComplexMapKeySerialization()
                     .excludeFieldsWithoutExposeAnnotation()
@@ -100,13 +100,13 @@ public class FilePermissions {
         }
 
         public boolean GivePermission(@NotNull Entity ent, String FileName) throws Exception {
-            if ( !ent.isPlayer() ) throw new Exception("Is not a Player");
+            if (!ent.isPlayer()) throw new Exception("Is not a Player");
             return Files.stream().filter(i -> i.Name.equals(FileName)).findFirst().map(file -> file.GivePermission(ent, new SoftReference<>(this))).orElse(false);
         }
 
         public boolean HavePermission(@NotNull Entity entity, String FileName, boolean Online_Mode) throws Exception {
-            if ( !entity.isPlayer() ) throw new Exception("Is not a Player");
-            if ( Files.stream().filter(i -> i.Name.equals(FileName)).map(i -> i.HavePermission(entity, Online_Mode)).findAny().isEmpty() )
+            if (!entity.isPlayer()) throw new Exception("Is not a Player");
+            if (Files.stream().filter(i -> i.Name.equals(FileName)).map(i -> i.HavePermission(entity, Online_Mode)).findAny().isEmpty())
                 return false;
             return Files.stream().filter(i -> i.Name.equals(FileName)).allMatch(i -> i.HavePermission(entity, Online_Mode));
         }
@@ -119,7 +119,7 @@ public class FilePermissions {
         public List<Permissions> Permissions;
 
         public boolean RemovePermission(Entity ent, boolean Online_Mode, @NotNull Reference<Files> father) {
-            if ( Online_Mode ) {
+            if (Online_Mode) {
                 return Permissions.stream().filter(i -> i.UUID.equals(ent.getUuidAsString())).allMatch(i -> variables.TickEvent.add(() -> {
                     Permissions.remove(i);
                     Objects.requireNonNull(father.get()).NeedUpdate = true;
@@ -143,7 +143,7 @@ public class FilePermissions {
         }
 
         public boolean HavePermission(Entity entity, boolean Online_Mode) {
-            if ( Online_Mode ) {
+            if (Online_Mode) {
                 return Permissions.stream().map(i -> i.UUID.equals(entity.getUuidAsString())).findAny().isPresent();
             }
             return Permissions.stream().map(i -> i.Name.equals(entity.getEntityName())).findAny().isPresent();

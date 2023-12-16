@@ -4,15 +4,15 @@ import cn.thecoldworld.textfilereader.variables;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
 
-public class S2CGetContent implements ToJsonAble {
+public class S2CGetFileContent implements NetworkPackageContent {
     public final String Value;
 
-    public S2CGetContent(String value) {
+    public S2CGetFileContent(String value) {
         Value = value;
     }
 
-    public S2CGetContent(@NotNull JsonObject jsonObject) {
-        Value = jsonObject.has("Value") ? "" : jsonObject.get("Value").getAsString();
+    public S2CGetFileContent(@NotNull JsonObject jsonObject) {
+        Value = jsonObject.has("Value") ? jsonObject.get("Value").getAsString() : "";
     }
 
     static public boolean IsInstance(String Json) {
@@ -24,7 +24,7 @@ public class S2CGetContent implements ToJsonAble {
     }
 
     public String ToJson() {
-        return variables.defaultGson.toJson(this, S2CGetContent.class);
+        return variables.defaultGson.toJson(this, S2CGetFileContent.class);
     }
 
     public JsonObject ToJsonObject() {

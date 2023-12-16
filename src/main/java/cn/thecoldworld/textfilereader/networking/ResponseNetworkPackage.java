@@ -31,7 +31,7 @@ public class ResponseNetworkPackage extends NetWorkPackage {
 
     public static boolean IsResponse(ByteBuf byteBuf, @Nullable Charset Charset) {
         Charset charset;
-        if ( Charset == null ) charset = StandardCharsets.UTF_8;
+        if (Charset == null) charset = StandardCharsets.UTF_8;
         else charset = Charset;
         return variables.defaultGson.fromJson(new String(byteBuf.array(), charset).trim(), ResponseNetworkPackage.class).ResponseID != null;
     }

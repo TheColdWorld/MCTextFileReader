@@ -1,44 +1,44 @@
 {
-  "schemaVersion": 1 ,
-  "id": "textfilereader" ,
-  "version": "${version}" ,
-  "name": "TextFileReader" ,
-  "description": "A mod that can read out-of-game files in game (fabric only)" ,
+  "schemaVersion": 1,
+  "id": "textfilereader",
+  "version": "${version}",
+  "name": "TextFileReader",
+  "description": "A mod that can read out-of-game files in game (fabric only)",
   "authors": [
     "TheColdWorld"
-  ] ,
+  ],
   "contact": {
-    "homepage": "https://modrinth.com/mod/textfilereader" ,
-    "github": "https://github.com/TheColdWorld/MCTextFileReader" ,
-    "issues": "https://github.com/TheColdWorld/MCTextFileReader/issues" ,
+    "homepage": "https://modrinth.com/mod/textfilereader",
+    "github": "https://github.com/TheColdWorld/MCTextFileReader",
+    "issues": "https://github.com/TheColdWorld/MCTextFileReader/issues",
     "repo": "https://github.com/TheColdWorld/MCTextFileReader"
-  } ,
-  "license": "GPL-3.0" ,
-  "environment": "*" ,
+  },
+  "license": "GPL-3.0",
+  "environment": "*",
   "entrypoints": {
     "client": [
-      "cn.thecoldworld.textfilereader.client"
-    ] ,
+      "cn.thecoldworld.textfilereader.client.client"
+    ],
     "main": [
       "cn.thecoldworld.textfilereader.mod"
-    ] ,
+    ],
     "modmenu": [
-      "cn.thecoldworld.textfilereader.TextFileReaderModMenuApi"
+      "cn.thecoldworld.textfilereader.client.TextFileReaderModMenuApi"
     ]
-  } ,
+  },
   "depends": {
-    "fabricloader": ">=${loader_version}" ,
-    "fabric-api": "*" ,
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
     "minecraft": "${minecraft_version}"
-  } ,
+  },
   "suggests": {
     "modmenu": ">=${modmenu_version}"
-  } ,
+  },
   "custom": {
     "modmenu": {
       "links": {
         "modmenu.modrinth": "https://modrinth.com/mod/textfilereader"
-      } ,
+      },
       "update_checker": true
     }
   }

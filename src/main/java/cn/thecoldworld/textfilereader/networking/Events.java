@@ -1,5 +1,8 @@
 package cn.thecoldworld.textfilereader.networking;
 
+import cn.thecoldworld.textfilereader.variables;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -11,8 +14,10 @@ import net.minecraft.util.Identifier;
 
 import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public final class Events {
+    @Environment(EnvType.CLIENT)
     public static _S2CPackageEvent S2CPackageEvent;
     public static _C2SPackageEvent C2SPackageEvent;
 
@@ -33,7 +38,7 @@ public final class Events {
         }
 
         public void InvokeAsync(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender, Identifier Identifier) {
-            EventHandle.forEach(i -> CompletableFuture.runAsync(() -> i.Invoke(server, player, handler, buf, responseSender, Identifier)));
+            EventHandle.forEach(i -> variables.scheduledExecutorService.schedule(() -> i.Invoke(server, player, handler, buf, responseSender, Identifier),0, TimeUnit.MICROSECONDS));
         }
 
         @FunctionalInterface
@@ -42,6 +47,7 @@ public final class Events {
         }
     }
 
+    @Environment(EnvType.CLIENT)
     public static final class _S2CPackageEvent {
         private final LinkedList<S2CPackageEventArg> EventHandle;
 
@@ -61,9 +67,10 @@ public final class Events {
 
         public void InvokeAsync(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf,
                                 PacketSender responseSender, Identifier Identifier) {
-            EventHandle.forEach(i -> CompletableFuture.runAsync(() -> i.Invoke(client, handler, buf, responseSender, Identifier)));
+            EventHandle.forEach(i -> variables.scheduledExecutorService.schedule(() -> i.Invoke(client, handler, buf, responseSender, Identifier),0,TimeUnit.MICROSECONDS));
         }
 
+        @Environment(EnvType.CLIENT)
         @FunctionalInterface
         public interface S2CPackageEventArg {
             void Invoke(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender, Identifier textFileIdentifier);
