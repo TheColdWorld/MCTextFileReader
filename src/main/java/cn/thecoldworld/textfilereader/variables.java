@@ -1,10 +1,12 @@
 package cn.thecoldworld.textfilereader;
 
+import cn.thecoldworld.textfilereader.api.SubMod;
 import com.google.gson.Gson;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,10 +18,10 @@ public abstract class variables {
     public static ThreadPool threadPool = null;
     public static boolean IsWorldLoaded = false;
     public static Settings ModSettings;
-    public static cn.thecoldworld.textfilereader.client.Settings ClientModSettings;
     public static boolean IsClient = false;
 
     public static Gson defaultGson = new Gson();
+    public static ArrayList<SubMod> subMods = new ArrayList<>();
 
     public abstract static class Identifiers {
         public final static Identifier TextFileListNetworkingIdentifier = new Identifier("textfilereader", "networking/textfilelist");

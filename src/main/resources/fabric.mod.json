@@ -16,11 +16,11 @@
   "license": "GPL-3.0",
   "environment": "*",
   "entrypoints": {
-    "client": [
-      "cn.thecoldworld.textfilereader.client.client"
-    ],
     "main": [
       "cn.thecoldworld.textfilereader.mod"
+    ],
+    "client": [
+      "cn.thecoldworld.textfilereader.client.client"
     ],
     "modmenu": [
       "cn.thecoldworld.textfilereader.client.TextFileReaderModMenuApi"
@@ -28,11 +28,12 @@
   },
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "fabric-api": "*",
-    "minecraft": "${minecraft_version}"
+    "minecraft": "~${minecraft_version}",
+    "java": ">=17",
+    "modmenu": ">=${modmenu_version}",
+    "fabric-api": "*"
   },
   "suggests": {
-    "modmenu": ">=${modmenu_version}"
   },
   "custom": {
     "modmenu": {

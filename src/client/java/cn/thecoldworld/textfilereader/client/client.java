@@ -1,25 +1,24 @@
 package cn.thecoldworld.textfilereader.client;
 
-import cn.thecoldworld.textfilereader.FileIO;
 import cn.thecoldworld.textfilereader.client.screen.MainGUI;
 import cn.thecoldworld.textfilereader.variables;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 @Environment(EnvType.CLIENT)
 public class client implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> cFileReader.init(dispatcher));
         KeyBindings.inGameGuiBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.filereader.gui.open", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "key.filereader.gui.open"));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -32,8 +31,17 @@ public class client implements ClientModInitializer {
                 variables.Identifiers.DebugFileIdentifier,
                 variables.Identifiers.TextFileNetworkingIdentifier
         );
-        FileIO.ClientConfigPath = Paths.get(System.getProperty("user.dir"), "config", "TextFileReader.client.json").toAbsolutePath().normalize();
-        variables.ClientModSettings = Settings.GetSettings();
+        cn.thecoldworld.textfilereader.client.variables.ClientConfigPath = Paths.get(System.getProperty("user.dir"), "config", "TextFileReader.client.json").toAbsolutePath().normalize();
+        cn.thecoldworld.textfilereader.client.variables.ClientModSettings = Settings.GetSettings();
         variables.IsClient = true;
+        variables.scheduledExecutorService.scheduleWithFixedDelay(() -> {
+            if (variables.IsClient && cn.thecoldworld.textfilereader.client.variables.ClientModSettings != null) {
+                try {
+                    cn.thecoldworld.textfilereader.client.variables.ClientModSettings.UptoFile();
+                } catch (IOException e) {
+                    variables.Log.error("", e);
+                }
+            }
+        }, 0, 500, TimeUnit.MICROSECONDS);
     }
 }

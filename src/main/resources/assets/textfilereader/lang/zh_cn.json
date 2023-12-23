@@ -10,7 +10,7 @@
   "modmenu.descriptionTranslation.textfilereader": "一个将游戏外文件的内容在Minecraft内输出的模组",
   "options.textfilereader.guiautoupdatefilelist": "在主GUi中自动更新文件列表",
   "options.textfilereader.guiautoupdatefilelist.tooltip": "在打开主GUI一段时间后向服务端请求文件列表\n可能会产生额外的流量！",
-  "options.textfilereader.optiomstitle": "TextFileReader模组设置",
+  "options.textfilereader.clientoptiomstitle": "TextFileReader客户端侧模组设置",
   "options.textfilereader.removeinvalidfile": "移除无效文件",
   "options.textfilereader.removeinvalidfile.tooltip": "在更新权限文件时，检查是否有无效文件，如果选项为是的话就会将文件的权限删除\n§4这样做会导致该文件的权限被清除！§4特别是当你在先删除再复制新的文件时候！",
   "options.textfilereader.segmentedoutput": "分段输出",
@@ -42,5 +42,6 @@
   "options.textfilereader.pausegame.tooltop": "在TextFileReader阅读界面打开时暂停游戏\n§e但是在TextFileReader主界面时不暂停",
   "options.textfilereader.readscreen.linesperpage": "一页内含有文件的行数",
   "options.textfilereader.threads": "TextFileReader工作线程数",
-  "options.textfilereader.threads.tooltip": "（重启Minecraft生效）更改TextFileReader工作线程数\n§e请根据你的CPU配置谨慎设置！\n§e过高的值可能会让游戏卡顿\n§e低的值会使TextFileReader各项工作变得迟缓"
+  "options.textfilereader.threads.tooltip": "（重启Minecraft生效）更改TextFileReader工作线程数\n§e请根据你的CPU配置谨慎设置！\n§e过高的值可能会让游戏卡顿\n§e低的值会使TextFileReader各项工作变得迟缓",
+  "options.textfilereader.serveroptiomstitle": "TextFileReader服务端侧模组设置"
 }

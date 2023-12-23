@@ -1,4 +1,4 @@
-package cn.thecoldworld.textfilereader.networking;
+package cn.thecoldworld.textfilereader.client.networking;
 
 import com.google.gson.JsonObject;
 import net.fabricmc.api.EnvType;

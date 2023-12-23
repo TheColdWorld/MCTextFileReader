@@ -14,8 +14,8 @@ import java.util.List;
 public class FileListWidget extends AlwaysSelectedEntryListWidget<FileListWidget.Entry> {
     private final TextRenderer textRenderer;
 
-    public FileListWidget(MinecraftClient client, int width, int height, int top, int bottom, int itemHeight, TextRenderer textRenderer) {
-        super(client, width, height, top, bottom, itemHeight);
+    public FileListWidget(MinecraftClient client, int width, int height, int top, int itemHeight, TextRenderer textRenderer) {
+        super(client, width, height, top, itemHeight);
         this.textRenderer = textRenderer;
         setRenderBackground(false);
     }

@@ -1,8 +1,6 @@
 package cn.thecoldworld.textfilereader;
 
 import com.mojang.brigadier.context.CommandContext;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
@@ -21,8 +19,6 @@ public class FileIO {
     public static Path RootDir = null;
     public static Path GlobalTextPath = null;
     public static Path ConfigPath = null;
-    @Environment(EnvType.CLIENT)
-    public static Path ClientConfigPath = null;
 
     public static int PrintFile(Entity entity, World world, String Filename, FileSource fileSource, boolean IsSelf, CommandContext<ServerCommandSource> context) throws IOException {
         if (world.isClient) return -1;

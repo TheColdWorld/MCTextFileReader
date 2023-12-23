@@ -1,5 +1,7 @@
-package cn.thecoldworld.textfilereader.networking;
+package cn.thecoldworld.textfilereader.client.networking;
 
+import cn.thecoldworld.textfilereader.networking.ResponseNetworkPackage;
+import cn.thecoldworld.textfilereader.networking.SendNetworkPackage;
 import cn.thecoldworld.textfilereader.networking.jsonformats.NetworkPackageContent;
 import cn.thecoldworld.textfilereader.tasks.Task;
 import com.google.gson.JsonObject;

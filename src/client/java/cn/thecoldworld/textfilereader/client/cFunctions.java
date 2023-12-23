@@ -2,9 +2,9 @@ package cn.thecoldworld.textfilereader.client;
 
 import cn.thecoldworld.textfilereader.FileIO;
 import cn.thecoldworld.textfilereader.FileSource;
+import cn.thecoldworld.textfilereader.client.networking.ClientNetWorkingTask;
+import cn.thecoldworld.textfilereader.client.networking.NetWorkingFunctions;
 import cn.thecoldworld.textfilereader.client.screen.TextGUI;
-import cn.thecoldworld.textfilereader.networking.ClientNetWorkingTask;
-import cn.thecoldworld.textfilereader.networking.NetworkingFunctions;
 import cn.thecoldworld.textfilereader.networking.jsonformats.C2SGetFileContent;
 import cn.thecoldworld.textfilereader.networking.jsonformats.FailedContent;
 import cn.thecoldworld.textfilereader.networking.jsonformats.S2CGetFileContent;
@@ -34,7 +34,7 @@ public class cFunctions {
     @Environment(EnvType.CLIENT)
     public static void RegisterNetworkReceivers(Identifier... NetworkingIdentifiers) {
         for (Identifier i : NetworkingIdentifiers) {
-            ClientPlayNetworking.registerGlobalReceiver(i, ((client, handler, buf, responseSender) -> NetworkingFunctions.GetNetPackageCallback(client, handler, buf, responseSender, i)));
+            ClientPlayNetworking.registerGlobalReceiver(i, ((client, handler, buf, responseSender) -> NetWorkingFunctions.GetNetPackageCallback(client, handler, buf, responseSender, i)));
         }
     }
 
@@ -88,16 +88,16 @@ public class cFunctions {
                             }
                             PageScanner.close();
                             if (Lines.isEmpty()) return;
-                            if (Lines.size() <= variables.ClientModSettings.getLinesPerPage()) {
+                            if (Lines.size() <= cn.thecoldworld.textfilereader.client.variables.ClientModSettings.getLinesPerPage()) {
                                 Screen.SetText(i);
                                 return;
                             }
-                            int Pages = cn.thecoldworld.textfilereader.funcitons.DivisibleUpwards(Lines.size(), variables.ClientModSettings.getLinesPerPage());
+                            int Pages = cn.thecoldworld.textfilereader.funcitons.DivisibleUpwards(Lines.size(), cn.thecoldworld.textfilereader.client.variables.ClientModSettings.getLinesPerPage());
                             String[] pages = new String[Pages];
                             int EndRow = 0;
                             for (int k = 0; k < Pages; k++) {
                                 StringBuilder sb = new StringBuilder();
-                                for (int j = 0; j < variables.ClientModSettings.getLinesPerPage() && EndRow < Lines.size(); j++, EndRow++) {
+                                for (int j = 0; j < cn.thecoldworld.textfilereader.client.variables.ClientModSettings.getLinesPerPage() && EndRow < Lines.size(); j++, EndRow++) {
                                     sb.append(Lines.get(EndRow).replace("\t", "    ")).append('\n');
                                 }
                                 pages[k] = sb.toString();

@@ -14,18 +14,7 @@ public class Settings {
     private boolean RemoveInvalidFile;
     @SerializedName("Segmentedoutput")
     private boolean SegmentedOutput;
-
-    public int getThreads() {
-        return Threads;
-    }
-
-    public void setThreads(int threads) {
-        Threads = threads;
-        this.NeedUpdate=true;
-    }
-
     private int Threads;
-
 
     public Settings() {
         SegmentedOutput = false;
@@ -43,6 +32,15 @@ public class Settings {
         } catch (IOException e) {
             return new Settings();
         }
+    }
+
+    public int getThreads() {
+        return Threads;
+    }
+
+    public void setThreads(int threads) {
+        Threads = threads;
+        this.NeedUpdate = true;
     }
 
     public void UptoFile() throws IOException {

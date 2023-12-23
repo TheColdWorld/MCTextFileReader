@@ -65,7 +65,7 @@ public class TextGUI extends Screen {
 
     @Override
     public boolean shouldPause() {
-        return variables.ClientModSettings.isPauseGame();
+        return cn.thecoldworld.textfilereader.client.variables.ClientModSettings.isPauseGame();
     }
 
     @Override

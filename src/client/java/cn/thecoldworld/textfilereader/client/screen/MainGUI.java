@@ -2,8 +2,8 @@ package cn.thecoldworld.textfilereader.client.screen;
 
 import cn.thecoldworld.textfilereader.FileSource;
 import cn.thecoldworld.textfilereader.client.cFunctions;
+import cn.thecoldworld.textfilereader.client.networking.ClientNetWorkingTask;
 import cn.thecoldworld.textfilereader.client.screen.widgets.FileListWidget;
-import cn.thecoldworld.textfilereader.networking.ClientNetWorkingTask;
 import cn.thecoldworld.textfilereader.networking.jsonformats.C2SGetFileList;
 import cn.thecoldworld.textfilereader.networking.jsonformats.FailedContent;
 import cn.thecoldworld.textfilereader.networking.jsonformats.S2CGetFileList;
@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +47,7 @@ public class MainGUI extends Screen {
 
     @Override
     protected void init() {
-        FileListWidget widget = new FileListWidget(client, width, height / 3 * 2, 0, height - 25, 20, textRenderer);
+        FileListWidget widget = new FileListWidget(client, width, height / 3 * 2, 0, height - 25, textRenderer);
         ButtonWidget SwitchModeButton = ButtonWidget.builder(Text.translatable(switch (fileSource) {
                     case global -> "gui.filereader.main.switchbutton.global";
                     case save -> "gui.filereader.main.switchbutton.save";
@@ -93,7 +92,7 @@ public class MainGUI extends Screen {
     @Override
     public void onDisplayed() {
         super.onDisplayed();
-        if (variables.ClientModSettings.isGuiAutoUpdateFileList()) {
+        if (cn.thecoldworld.textfilereader.client.variables.ClientModSettings.isGuiAutoUpdateFileList()) {
             syncService = variables.scheduledExecutorService.scheduleAtFixedRate(this::SyncFiles, 100, 10, TimeUnit.SECONDS);
         }
         SyncFiles();
@@ -126,7 +125,7 @@ public class MainGUI extends Screen {
                         }
                     }
                     Reinit();
-                },0,TimeUnit.MICROSECONDS);
+                }, 0, TimeUnit.MICROSECONDS);
     }
 
     @Override
@@ -137,6 +136,7 @@ public class MainGUI extends Screen {
     @Override
     public void close() {
         client.setScreen(prevScreen);
-        if (variables.ClientModSettings.isGuiAutoUpdateFileList()) syncService.cancel(true);
+        if (cn.thecoldworld.textfilereader.client.variables.ClientModSettings.isGuiAutoUpdateFileList())
+            syncService.cancel(true);
     }
 }

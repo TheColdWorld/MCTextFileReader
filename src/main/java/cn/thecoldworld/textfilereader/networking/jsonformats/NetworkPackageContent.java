@@ -4,5 +4,6 @@ import com.google.gson.JsonObject;
 
 public interface NetworkPackageContent {
     String ToJson();
+
     JsonObject ToJsonObject();
 }

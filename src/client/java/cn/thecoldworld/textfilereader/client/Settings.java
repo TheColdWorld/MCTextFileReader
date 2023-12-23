@@ -1,6 +1,5 @@
 package cn.thecoldworld.textfilereader.client;
 
-import cn.thecoldworld.textfilereader.FileIO;
 import cn.thecoldworld.textfilereader.variables;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -29,12 +28,12 @@ public class Settings {
 
     @Environment(EnvType.CLIENT)
     public static Settings GetSettings() {
-        if (!FileIO.ClientConfigPath.toFile().exists() || !FileIO.ClientConfigPath.toFile().isFile()) {
+        if (!cn.thecoldworld.textfilereader.client.variables.ClientConfigPath.toFile().exists() || !cn.thecoldworld.textfilereader.client.variables.ClientConfigPath.toFile().isFile()) {
             return new Settings();
         }
         try {
-            Settings set = variables.defaultGson.fromJson(String.join("", Files.readAllLines(FileIO.ClientConfigPath)), Settings.class);
-            return Objects.requireNonNullElseGet(set, cn.thecoldworld.textfilereader.client.Settings::new);
+            Settings set = variables.defaultGson.fromJson(String.join("", Files.readAllLines(cn.thecoldworld.textfilereader.client.variables.ClientConfigPath)), Settings.class);
+            return Objects.requireNonNullElseGet(set, Settings::new);
         } catch (IOException e) {
             return new Settings();
         }
@@ -69,7 +68,7 @@ public class Settings {
     public void UptoFile() throws IOException {
         if (!NeedUpdate) return;
         variables.Log.debug(this.getClass().getCanonicalName() + "Updating");
-        FileWriter fp = new FileWriter(FileIO.ClientConfigPath.toFile(), StandardCharsets.UTF_8, false);
+        FileWriter fp = new FileWriter(cn.thecoldworld.textfilereader.client.variables.ClientConfigPath.toFile(), StandardCharsets.UTF_8, false);
         fp.write(variables.defaultGson.toJson(this));
         fp.flush();
         fp.close();

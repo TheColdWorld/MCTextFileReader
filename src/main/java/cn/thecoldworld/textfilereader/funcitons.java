@@ -1,9 +1,11 @@
 package cn.thecoldworld.textfilereader;
 
 
+import cn.thecoldworld.textfilereader.exceptions.TranslatableException;
 import cn.thecoldworld.textfilereader.networking.NetworkingFunctions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
@@ -19,6 +21,19 @@ import java.util.List;
 import java.util.function.Function;
 
 public abstract class funcitons {
+    public static List<String> GetFileList(MinecraftServer server, ServerPlayerEntity player, FileSource fileSource) throws TranslatableException {
+        FilePermissions.Files files = switch (fileSource) {
+            case global -> FilePermissions.GlobalTextPermission;
+            case save -> FilePermissions.WorldTextPermission;
+            case local -> throw new TranslatableException("text.filereader.internalexception");
+        };
+        LinkedList<String> FileList = new LinkedList<>();
+        files.Files.forEach(file -> {
+            if (file.HavePermission(player, server.isOnlineMode())) FileList.add(file.Name);
+        });
+        return FileList;
+    }
+
     public static void RegisterServerNetworkReceivers(Identifier... Identifiers) {
         for (Identifier i : Identifiers) {
             ServerPlayNetworking.registerGlobalReceiver(i, ((server, player, handler, buf, responseSender) -> NetworkingFunctions.GetNetPackageCallback(server, player, handler, buf, responseSender, i)));
@@ -88,13 +103,6 @@ public abstract class funcitons {
         if (variables.ModSettings != null) {
             try {
                 variables.ModSettings.UptoFile();
-            } catch (IOException e) {
-                variables.Log.error("", e);
-            }
-        }
-        if (variables.IsClient && variables.ClientModSettings != null) {
-            try {
-                variables.ClientModSettings.UptoFile();
             } catch (IOException e) {
                 variables.Log.error("", e);
             }

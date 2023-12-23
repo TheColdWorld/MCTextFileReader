@@ -1,7 +1,6 @@
 package cn.thecoldworld.textfilereader;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
@@ -29,7 +28,6 @@ public class mod implements ModInitializer {
                 }
             }
             variables.ModSettings = Settings.GetSettings();
-            CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> filereader.Init(dispatcher)));
             try {
                 funcitons.CreateFile(Paths.get(FileIO.GlobalTextPath.toString(), "permissions.json").toFile(), "{\"Files\":[]}");
             } catch (Exception e) {
@@ -38,7 +36,7 @@ public class mod implements ModInitializer {
             FilePermissions.GlobalTextPermission = FilePermissions.InitPermission(Paths.get(FileIO.GlobalTextPath.toString(), "permissions.json"));
             variables.threadPool = new ThreadPool();
             ServerWorldEvents.LOAD.register((funcitons::OnWorldLoading));
-            variables.scheduledExecutorService = Executors.newScheduledThreadPool(variables.ModSettings.getThreads(),variables.threadPool);
+            variables.scheduledExecutorService = Executors.newScheduledThreadPool(variables.ModSettings.getThreads(), variables.threadPool);
             variables.scheduledExecutorService.scheduleAtFixedRate(funcitons::OnUpdateThread, 0, 500, TimeUnit.MICROSECONDS);
             ServerWorldEvents.UNLOAD.register(((server, world) -> variables.IsWorldLoaded = false));
             funcitons.RegisterServerNetworkReceivers(

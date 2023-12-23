@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -46,7 +45,7 @@ public class Task<TResult> {
         this.result = result;
         this.Returned = true;
         TaskAWaiter.Return();
-        callbacks.forEach(i -> variables.scheduledExecutorService.schedule(() -> i.accept(result),0, TimeUnit.MICROSECONDS));
+        callbacks.forEach(i -> variables.scheduledExecutorService.schedule(() -> i.accept(result), 0, TimeUnit.MICROSECONDS));
     }
 
     public boolean isReturned() {
@@ -55,7 +54,7 @@ public class Task<TResult> {
 
     public void Start() {
         if (this.Returned) return;
-        variables.scheduledExecutorService.schedule(runnable,0,TimeUnit.MICROSECONDS);
+        variables.scheduledExecutorService.schedule(runnable, 0, TimeUnit.MICROSECONDS);
         this.Returned = false;
     }
 

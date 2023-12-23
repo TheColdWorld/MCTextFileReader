@@ -4,7 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.Expose;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.entity.Entity;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileWriter;
@@ -44,6 +47,22 @@ public class FilePermissions {
             throw new RuntimeException(e);
         }
         return FP;
+    }
+
+    public static boolean HavePermission(ServerPlayerEntity player, String FileName, FileSource fileSource) {
+        boolean Online_Mode;
+        if (player.getServer() == null) Online_Mode = false;
+        else Online_Mode = player.getServer().isOnlineMode();
+        try {
+            return switch (fileSource) {
+                case global -> FilePermissions.GlobalTextPermission.HavePermission(player, FileName, Online_Mode);
+                case save -> FilePermissions.WorldTextPermission.HavePermission(player, FileName, Online_Mode);
+                case local ->
+                        throw new SimpleCommandExceptionType(Text.translatable("text.filereader.internalexception")).create();
+            };
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
     public static class Files {
@@ -125,7 +144,7 @@ public class FilePermissions {
                     Objects.requireNonNull(father.get()).NeedUpdate = true;
                 }));
             }
-            return Permissions.stream().filter(i -> i.Name.equals(ent.getEntityName())).allMatch(i -> variables.TickEvent.add(() -> {
+            return Permissions.stream().filter(i -> i.Name.equals(ent.getName().getString())).allMatch(i -> variables.TickEvent.add(() -> {
                 Permissions.remove(i);
                 Objects.requireNonNull(father.get()).NeedUpdate = true;
             }));
@@ -133,7 +152,7 @@ public class FilePermissions {
 
         public boolean GivePermission(@NotNull Entity ent, @NotNull Reference<Files> father) {
             FilePermissions.Permissions p = new Permissions();
-            p.Name = ent.getEntityName();
+            p.Name = ent.getName().getString();
             p.UUID = ent.getUuidAsString();
             variables.TickEvent.add(() -> {
                 Permissions.add(p);
@@ -146,7 +165,7 @@ public class FilePermissions {
             if (Online_Mode) {
                 return Permissions.stream().map(i -> i.UUID.equals(entity.getUuidAsString())).findAny().isPresent();
             }
-            return Permissions.stream().map(i -> i.Name.equals(entity.getEntityName())).findAny().isPresent();
+            return Permissions.stream().map(i -> i.Name.equals(entity.getName().getString())).findAny().isPresent();
         }
     }
 
