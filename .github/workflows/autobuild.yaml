@@ -1,0 +1,48 @@
+name: Auto build
+run-name: Auto build
+
+on:
+  workflow_dispatch:
+  push:
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check env
+        run: env
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Set up java development kit
+        uses: actions/setup-java@v2
+        with:
+          distribution: "temurin"
+          java-version: 17
+
+      - name: Give running permission to  Gradle Wrapper
+        if: ${{ runner.os != 'Windows' }}
+        run: chmod +x ./gradlew
+
+      - name: build mod
+        run: ./gradlew clean build
+
+      - name: check build dir
+        run: ls build/libs/
+
+      - name: Create Release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ github.run_number }}"
+          title: "Auto Build-${{ github.run_number }}-${{ github.sha }}"
+          draft: false
+          prerelease: true
+          files: |
+            build/libs/*
