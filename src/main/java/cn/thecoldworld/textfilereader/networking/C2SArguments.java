@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class C2SArguments {
+public final class C2SArguments {
     public final JsonObject value;
     public final MinecraftServer server;
     public final ServerPlayerEntity Sender;

@@ -15,9 +15,13 @@ public class Settings {
     @SerializedName("Segmentedoutput")
     private boolean SegmentedOutput;
     private int Threads;
+    private boolean LogSenders;
 
     public Settings() {
         SegmentedOutput = false;
+        LogSenders = false;
+        Threads = 5;
+        RemoveInvalidFile = false;
         NeedUpdate = true;
     }
 
@@ -32,6 +36,15 @@ public class Settings {
         } catch (IOException e) {
             return new Settings();
         }
+    }
+
+    public boolean isLogSenders() {
+        return LogSenders;
+    }
+
+    public void setLogSenders(boolean logSenders) {
+        LogSenders = logSenders;
+        NeedUpdate = true;
     }
 
     public int getThreads() {

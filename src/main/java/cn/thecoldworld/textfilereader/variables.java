@@ -14,18 +14,17 @@ import java.util.concurrent.ScheduledExecutorService;
 public abstract class variables {
     public static final Logger Log = LoggerFactory.getLogger("TextFileReader");
     public static final BlockingDeque<Runnable> TickEvent = new LinkedBlockingDeque<>();
+    public static final Gson defaultGson = new Gson();
+    public static final ArrayList<SubMod> subMods = new ArrayList<>();
+    public static final ThreadPool threadPool = new ThreadPool();
     public static ScheduledExecutorService scheduledExecutorService = null;
-    public static ThreadPool threadPool = null;
     public static boolean IsWorldLoaded = false;
     public static Settings ModSettings;
     public static boolean IsClient = false;
 
-    public static Gson defaultGson = new Gson();
-    public static ArrayList<SubMod> subMods = new ArrayList<>();
-
     public abstract static class Identifiers {
         public final static Identifier TextFileListNetworkingIdentifier = new Identifier("textfilereader", "networking/textfilelist");
         public final static Identifier TextFileNetworkingIdentifier = new Identifier("textfilereader", "networking/textfile");
-        public final static Identifier DebugFileIdentifier = new Identifier("textfilereader", "debug/test");
+        public final static Identifier ControlingIdentifier = new Identifier("textfilereader", "networking/controling");
     }
 }

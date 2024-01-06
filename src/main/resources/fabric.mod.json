@@ -30,12 +30,17 @@
     "fabricloader": ">=${loader_version}",
     "minecraft": "~${minecraft_version}",
     "java": ">=17",
-    "modmenu": ">=${modmenu_version}",
     "fabric-api": "*"
   },
   "suggests": {
+    "modmenu": ">=${modmenu_version}"
   },
   "custom": {
+    "mc-publish": {
+      "dependencies": [
+        "modmenu@9.0.0(required){modrinth:mOgUt4GM}"
+      ]
+    },
     "modmenu": {
       "links": {
         "modmenu.modrinth": "https://modrinth.com/mod/textfilereader"

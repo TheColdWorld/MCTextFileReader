@@ -3,7 +3,7 @@ package cn.thecoldworld.textfilereader.networking.jsonformats;
 import cn.thecoldworld.textfilereader.variables;
 import com.google.gson.JsonObject;
 
-public class FailedContent implements NetworkPackageContent {
+public final class FailedContent implements NetworkPackageContent {
     public final String Reason;
 
     public FailedContent(String TranslateKey) {
@@ -35,6 +35,14 @@ public class FailedContent implements NetworkPackageContent {
     static public boolean IsInstance(String Json) {
         try {
             return variables.defaultGson.fromJson(Json, JsonObject.class).has("Reason");
+        } catch (Throwable e) {
+            return false;
+        }
+    }
+
+    static public boolean IsInstance(JsonObject obj) {
+        try {
+            return obj.has("Reason");
         } catch (Throwable e) {
             return false;
         }

@@ -1,5 +1,5 @@
 package cn.thecoldworld.textfilereader;
 
-public enum FileSource {
+public enum ClientFileSource {
     global, save, local
 }

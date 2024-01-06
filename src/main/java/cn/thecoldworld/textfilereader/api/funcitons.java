@@ -1,8 +1,11 @@
-package cn.thecoldworld.textfilereader;
+package cn.thecoldworld.textfilereader.api;
 
 
+import cn.thecoldworld.textfilereader.FilePermissions;
+import cn.thecoldworld.textfilereader.ServerFileSource;
 import cn.thecoldworld.textfilereader.exceptions.TranslatableException;
 import cn.thecoldworld.textfilereader.networking.NetworkingFunctions;
+import cn.thecoldworld.textfilereader.variables;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -21,17 +24,20 @@ import java.util.List;
 import java.util.function.Function;
 
 public abstract class funcitons {
-    public static List<String> GetFileList(MinecraftServer server, ServerPlayerEntity player, FileSource fileSource) throws TranslatableException {
-        FilePermissions.Files files = switch (fileSource) {
-            case global -> FilePermissions.GlobalTextPermission;
-            case save -> FilePermissions.WorldTextPermission;
-            case local -> throw new TranslatableException("text.filereader.internalexception");
-        };
-        LinkedList<String> FileList = new LinkedList<>();
-        files.Files.forEach(file -> {
-            if (file.HavePermission(player, server.isOnlineMode())) FileList.add(file.Name);
-        });
-        return FileList;
+    public static List<String> GetFileList(MinecraftServer server, ServerPlayerEntity player, ServerFileSource serverFileSource) throws TranslatableException {
+        try {
+            FilePermissions.Files files = switch (serverFileSource) {
+                case global -> FilePermissions.GlobalTextPermission;
+                case save -> FilePermissions.WorldTextPermission;
+            };
+            LinkedList<String> FileList = new LinkedList<>();
+            files.Files.forEach(file -> {
+                if (file.HavePermission(player, server.isOnlineMode())) FileList.add(file.Name);
+            });
+            return FileList;
+        } catch (Exception e) {
+            throw new TranslatableException("text.filereader.exception", e.getClass().getCanonicalName(), e.getMessage());
+        }
     }
 
     public static void RegisterServerNetworkReceivers(Identifier... Identifiers) {
@@ -140,5 +146,33 @@ public abstract class funcitons {
 
     public static int DivisibleUpwards(int x, int y) {
         return (x + y - 1) / y;
+    }
+
+    public static String[] GetPages(int LinesPerPage, String... Lines) {
+        int Pages = funcitons.DivisibleUpwards(Lines.length, LinesPerPage);
+        String[] pages = new String[Pages];
+        int EndRow = 0;
+        for (int k = 0; k < Pages; k++) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < LinesPerPage && EndRow < Lines.length; j++, EndRow++) {
+                sb.append(Lines[EndRow].replace("\t", "    ")).append('\n');
+            }
+            pages[k] = sb.toString();
+        }
+        return pages;
+    }
+
+    public static String[] GetPages(int LinesPerPage, List<String> Lines) {
+        int Pages = funcitons.DivisibleUpwards(Lines.size(), LinesPerPage);
+        String[] pages = new String[Pages];
+        int EndRow = 0;
+        for (int k = 0; k < Pages; k++) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < LinesPerPage && EndRow < Lines.size(); j++, EndRow++) {
+                sb.append(Lines.get(EndRow).replace("\t", "    ")).append('\n');
+            }
+            pages[k] = sb.toString();
+        }
+        return pages;
     }
 }

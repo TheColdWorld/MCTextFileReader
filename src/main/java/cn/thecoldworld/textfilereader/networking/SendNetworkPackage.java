@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class SendNetworkPackage extends NetWorkPackage {
+public final class SendNetworkPackage extends NetWorkPackage {
 
     public final boolean NeedResponse;
     public final String ResponseType;
@@ -32,9 +32,7 @@ public class SendNetworkPackage extends NetWorkPackage {
     }
 
     public static @NotNull SendNetworkPackage GetPackage(@NotNull ByteBuf bytes, @Nullable Charset Charset) {
-        Charset charset;
-        if (Charset == null) charset = StandardCharsets.UTF_8;
-        else charset = Charset;
+        Charset charset = Charset == null ? StandardCharsets.UTF_8 : Charset;
         return variables.defaultGson.fromJson(new String(bytes.array(), charset).trim(), SendNetworkPackage.class);
     }
 

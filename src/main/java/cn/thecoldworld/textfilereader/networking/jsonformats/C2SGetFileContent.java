@@ -1,19 +1,18 @@
 package cn.thecoldworld.textfilereader.networking.jsonformats;
 
-import cn.thecoldworld.textfilereader.FileSource;
+import cn.thecoldworld.textfilereader.ServerFileSource;
 import cn.thecoldworld.textfilereader.variables;
 import com.google.gson.JsonObject;
 
-public class C2SGetFileContent implements NetworkPackageContent {
+public final class C2SGetFileContent implements NetworkPackageContent {
     public final String FileName;
     public final String fileSource;
 
-    public C2SGetFileContent(String fileName, FileSource fileSource) throws Exception {
+    public C2SGetFileContent(String fileName, ServerFileSource serverFileSource) {
         FileName = fileName;
-        this.fileSource = switch (fileSource) {
+        this.fileSource = switch (serverFileSource) {
             case global -> "Global";
             case save -> "Save";
-            case local -> throw new Exception("Cannot use FileSource.local");
         };
     }
 
@@ -47,10 +46,10 @@ public class C2SGetFileContent implements NetworkPackageContent {
         }
     }
 
-    public FileSource GetFileSource() {
+    public ServerFileSource GetFileSource() {
         return switch (fileSource.toLowerCase()) {
-            case "global" -> FileSource.global;
-            case "save" -> FileSource.save;
+            case "global" -> ServerFileSource.global;
+            case "save" -> ServerFileSource.save;
             default -> throw new IllegalStateException("Unexpected value: " + fileSource);
         };
     }

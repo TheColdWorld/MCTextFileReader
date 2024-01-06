@@ -13,19 +13,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
-public class TextGUI extends Screen {
+public class TextGUI extends BasicGui {
     public final String FileName;
-    private final Screen prevScreen;
     public Text MainText;
     public List<Text> TextPages;
-    private int page;
+    protected int page;
 
     public TextGUI(@NotNull Screen prevScreen, MinecraftClient client, String FileName) {
-        super(Text.translatable("gui.filereader.read.title", FileName));
-        this.prevScreen = prevScreen;
-        this.client = client;
+        super(Objects.requireNonNullElse(client, MinecraftClient.getInstance()), Text.translatable("gui.filereader.read.title", FileName), prevScreen);
         MainText = Text.empty();
         this.FileName = FileName;
     }
@@ -65,7 +63,7 @@ public class TextGUI extends Screen {
 
     @Override
     public boolean shouldPause() {
-        return cn.thecoldworld.textfilereader.client.variables.ClientModSettings.isPauseGame();
+        return true;
     }
 
     @Override
@@ -106,12 +104,12 @@ public class TextGUI extends Screen {
         renderBackgroundTexture(context);
     }
 
-    @Override
-    public void close() {
-        client.setScreen(prevScreen);
-    }
 
     public int getPage() {
         return page;
+    }
+
+    public void Execute(Runnable action) {
+        Objects.requireNonNullElse(client, MinecraftClient.getInstance()).execute(action);
     }
 }

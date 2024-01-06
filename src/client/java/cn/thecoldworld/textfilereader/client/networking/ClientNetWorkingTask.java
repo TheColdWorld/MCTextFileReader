@@ -1,9 +1,9 @@
 package cn.thecoldworld.textfilereader.client.networking;
 
+import cn.thecoldworld.textfilereader.api.tasks.OutReturnTask;
 import cn.thecoldworld.textfilereader.networking.ResponseNetworkPackage;
 import cn.thecoldworld.textfilereader.networking.SendNetworkPackage;
 import cn.thecoldworld.textfilereader.networking.jsonformats.NetworkPackageContent;
-import cn.thecoldworld.textfilereader.tasks.Task;
 import com.google.gson.JsonObject;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public class ClientNetWorkingTask extends Task<S2CArguments> {
+public final class ClientNetWorkingTask extends OutReturnTask<S2CArguments> {
     @Environment(EnvType.CLIENT)
-    public static LinkedList<ClientNetWorkingTask> TaskPool = new LinkedList<>();
+    public static final LinkedList<ClientNetWorkingTask> TaskPool = new LinkedList<>();
     public final String PackageID;
     public final String PackageBody;
 

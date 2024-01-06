@@ -11,7 +11,7 @@ import net.minecraft.text.Text;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class FileListWidget extends AlwaysSelectedEntryListWidget<FileListWidget.Entry> {
+public final class FileListWidget extends AlwaysSelectedEntryListWidget<FileListWidget.Entry> {
     private final TextRenderer textRenderer;
 
     public FileListWidget(MinecraftClient client, int width, int height, int top, int itemHeight, TextRenderer textRenderer) {

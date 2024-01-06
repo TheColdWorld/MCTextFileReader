@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class ResponseNetworkPackage extends NetWorkPackage {
+public final class ResponseNetworkPackage extends NetWorkPackage {
 
     public final String ResponseID;
 
@@ -30,9 +30,7 @@ public class ResponseNetworkPackage extends NetWorkPackage {
     }
 
     public static boolean IsResponse(ByteBuf byteBuf, @Nullable Charset Charset) {
-        Charset charset;
-        if (Charset == null) charset = StandardCharsets.UTF_8;
-        else charset = Charset;
+        Charset charset = Charset == null ? StandardCharsets.UTF_8 : Charset;
         return variables.defaultGson.fromJson(new String(byteBuf.array(), charset).trim(), ResponseNetworkPackage.class).ResponseID != null;
     }
 

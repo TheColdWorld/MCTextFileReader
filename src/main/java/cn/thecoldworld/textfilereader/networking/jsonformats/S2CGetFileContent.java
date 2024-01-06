@@ -4,7 +4,7 @@ import cn.thecoldworld.textfilereader.variables;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
 
-public class S2CGetFileContent implements NetworkPackageContent {
+public final class S2CGetFileContent implements NetworkPackageContent {
     public final String Value;
 
     public S2CGetFileContent(String value) {
@@ -18,6 +18,14 @@ public class S2CGetFileContent implements NetworkPackageContent {
     static public boolean IsInstance(String Json) {
         try {
             return variables.defaultGson.fromJson(Json, JsonObject.class).has("Value");
+        } catch (Throwable e) {
+            return false;
+        }
+    }
+
+    static public boolean IsInstance(JsonObject object) {
+        try {
+            return object.has("Value");
         } catch (Throwable e) {
             return false;
         }

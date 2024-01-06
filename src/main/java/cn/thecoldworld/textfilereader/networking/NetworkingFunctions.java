@@ -1,11 +1,12 @@
 package cn.thecoldworld.textfilereader.networking;
 
 import cn.thecoldworld.textfilereader.FileIO;
-import cn.thecoldworld.textfilereader.FileSource;
+import cn.thecoldworld.textfilereader.ServerFileSource;
+import cn.thecoldworld.textfilereader.api.event.Events;
+import cn.thecoldworld.textfilereader.api.funcitons;
 import cn.thecoldworld.textfilereader.exceptions.TranslatableException;
 import cn.thecoldworld.textfilereader.networking.jsonformats.*;
 import cn.thecoldworld.textfilereader.variables;
-import com.google.gson.JsonObject;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
@@ -19,15 +20,10 @@ import java.util.List;
 public abstract class NetworkingFunctions {
     public static void OnReceiveSedPackage(MinecraftServer server, ServerPlayerEntity player, Identifier identifier, SendNetworkPackage sendNetworkPackage) {
         if (!sendNetworkPackage.NeedResponse) return;
-        if (identifier.equals(variables.Identifiers.DebugFileIdentifier)) {
-            JsonObject object = new JsonObject();
-            object.addProperty("tmp", "ads");
-            ServerNetWorkingTask.Run(object, sendNetworkPackage.ID, player, variables.Identifiers.DebugFileIdentifier);
-        }
         if (identifier.equals(variables.Identifiers.TextFileListNetworkingIdentifier)) {
             if (C2SGetFileList.IsInstance(sendNetworkPackage.Body.toString())) {
                 try {
-                    List<String> _Files = cn.thecoldworld.textfilereader.funcitons.GetFileList(server, player, new C2SGetFileList(sendNetworkPackage.Body).GetFileSource());
+                    List<String> _Files = funcitons.GetFileList(server, player, new C2SGetFileList(sendNetworkPackage.Body).GetFileSource());
                     ServerNetWorkingTask.Run(
                             new S2CGetFileList(_Files).ToJsonObject(),
                             sendNetworkPackage.ID,
@@ -55,15 +51,15 @@ public abstract class NetworkingFunctions {
             try {
                 if (C2SGetFileContent.IsInstance(sendNetworkPackage.Body.toString())) {
                     String fileName = sendNetworkPackage.Body.get("FileName").getAsString();
-                    FileSource fileSource = switch (sendNetworkPackage.Body.get("ListFileSource").getAsString().toLowerCase()) {
-                        case "global" -> FileSource.global;
-                        case "save" -> FileSource.save;
+                    ServerFileSource serverFileSource = switch (sendNetworkPackage.Body.get("ListFileSource").getAsString().toLowerCase()) {
+                        case "global" -> ServerFileSource.global;
+                        case "save" -> ServerFileSource.save;
                         default ->
                                 throw new IllegalStateException("Unexpected value: " + sendNetworkPackage.Body.get("ListFileSource").getAsString().toLowerCase());
                     };
-                    if (cn.thecoldworld.textfilereader.FilePermissions.HavePermission(player, fileName, fileSource)) {
+                    if (cn.thecoldworld.textfilereader.FilePermissions.HavePermission(player, fileName, serverFileSource)) {
                         ServerNetWorkingTask.Run(
-                                new S2CGetFileContent(FileIO.GetFileContent(fileName, fileSource, server)).ToJsonObject(),
+                                new S2CGetFileContent(FileIO.GetFileContent(fileName, serverFileSource, server)).ToJsonObject(),
                                 sendNetworkPackage.ID,
                                 player,
                                 variables.Identifiers.TextFileNetworkingIdentifier
@@ -92,13 +88,13 @@ public abstract class NetworkingFunctions {
             ResponseNetworkPackage responseNetworkPackage = ResponseNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8);
             if (responseNetworkPackage == null || responseNetworkPackage.ResponseID == null)
                 return;
-            cn.thecoldworld.textfilereader.funcitons.AutoRemoveGetItemFromStream(ServerNetWorkingTask.TaskPool,
+            funcitons.AutoRemoveGetItemFromStream(ServerNetWorkingTask.TaskPool,
                             t -> t.isReturned() && t.PackageID.equals(responseNetworkPackage.ResponseID))
                     .forEach(i -> i.Return(new C2SArguments(responseNetworkPackage.Body, server, player)));
         } else if (SendNetworkPackage.IsSendPackage(buf, StandardCharsets.UTF_8)) {
-            OnReceiveSedPackage(server, player, Identifier, SendNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8));
+            Events.C2SSendPacketEvent.EVENT.Invoke(server, player, handler, SendNetworkPackage.GetPackage(buf, StandardCharsets.UTF_8), responseSender, Identifier);
         } else {
-            Events.C2SPackageEvent.InvokeAsync(server, player, handler, buf, responseSender, Identifier);
+            Events.C2SPacketEvent.EVENT.Invoke(server, player, handler, buf, responseSender, Identifier);
         }
     }
 

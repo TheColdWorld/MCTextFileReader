@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import java.util.LinkedList;
 import java.util.List;
 
-public class S2CGetFileList implements NetworkPackageContent {
+public final class S2CGetFileList implements NetworkPackageContent {
     final List<String> files;
 
     public S2CGetFileList(List<String> files) {

@@ -13,15 +13,18 @@ import net.minecraft.client.option.SimpleOption;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 import static net.minecraft.client.option.GameOptions.getGenericValueText;
 
 @Environment(EnvType.CLIENT)
-public class ClientSettingGUI extends GameOptionsScreen {
+public final class ClientSettingGUI extends GameOptionsScreen {
     private final Screen prevScreen;
     private OptionListWidget optionListWidget;
 
-    public ClientSettingGUI(@NotNull Screen prevScreen) {
-        super(prevScreen, MinecraftClient.getInstance().options, Text.translatable("options.textfilereader.clientoptiomstitle"));
+    public ClientSettingGUI(@NotNull Screen prevScreen, MinecraftClient client) {
+        super(prevScreen, Objects.requireNonNullElse(client, MinecraftClient.getInstance()).options, Text.translatable("options.textfilereader.clientoptiomstitle"));
+        this.client = Objects.requireNonNullElse(client, MinecraftClient.getInstance());
         this.prevScreen = prevScreen;
     }
 
@@ -31,8 +34,10 @@ public class ClientSettingGUI extends GameOptionsScreen {
                 SimpleOption.ofBoolean("options.textfilereader.segmentedoutput", SimpleOption.constantTooltip(Text.translatable("options.textfilereader.segmentedoutput.tooltip")), ModSettings.isSegmentedOutput(), ModSettings::setSegmentedOutput),
                 SimpleOption.ofBoolean("options.textfilereader.guiautoupdatefilelist", SimpleOption.constantTooltip(Text.translatable("options.textfilereader.guiautoupdatefilelist.tooltip")), ClientSettings.isGuiAutoUpdateFileList(), ClientSettings::setGuiAutoUpdateFileList),
                 SimpleOption.ofBoolean("options.textfilereader.pausegame", SimpleOption.constantTooltip(Text.translatable("options.textfilereader.pausegame.tooltop")), ClientSettings.isPauseGame(), ClientSettings::setPauseGame),
+                SimpleOption.ofBoolean("options.textfilereader.logsenders", SimpleOption.constantTooltip(Text.translatable("options.textfilereader.logsenders.tooltip")), ModSettings.isLogSenders(), ModSettings::setLogSenders),
                 new SimpleOption<>("options.textfilereader.readscreen.linesperpage", SimpleOption.emptyTooltip(), (optionText, value) -> getGenericValueText(optionText, Text.literal(value.toString())), new SimpleOption.ValidatingIntSliderCallbacks(1, 512), ClientSettings.getLinesPerPage(), ClientSettings::setLinesPerPage),
                 new SimpleOption<>("options.textfilereader.threads", SimpleOption.constantTooltip(Text.translatable("options.textfilereader.threads.tooltip")), (optionText, value) -> getGenericValueText(optionText, Text.literal(value.toString())), new SimpleOption.ValidatingIntSliderCallbacks(4, 64), ModSettings.getThreads(), ModSettings::setThreads)
+
         };
     }
 
@@ -54,4 +59,7 @@ public class ClientSettingGUI extends GameOptionsScreen {
         client.setScreen(prevScreen);
     }
 
+    public void Execute(Runnable action) {
+        Objects.requireNonNullElse(client, MinecraftClient.getInstance()).execute(action);
+    }
 }

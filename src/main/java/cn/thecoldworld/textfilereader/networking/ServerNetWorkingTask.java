@@ -1,6 +1,6 @@
 package cn.thecoldworld.textfilereader.networking;
 
-import cn.thecoldworld.textfilereader.tasks.Task;
+import cn.thecoldworld.textfilereader.api.tasks.OutReturnTask;
 import com.google.gson.JsonObject;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -12,8 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ServerNetWorkingTask extends Task<C2SArguments> {
-    public static LinkedList<ServerNetWorkingTask> TaskPool = new LinkedList<>();
+public final class ServerNetWorkingTask extends OutReturnTask<C2SArguments> {
+    public static final LinkedList<ServerNetWorkingTask> TaskPool = new LinkedList<>();
     public final String PackageID;
     public final String PackageBody;
 

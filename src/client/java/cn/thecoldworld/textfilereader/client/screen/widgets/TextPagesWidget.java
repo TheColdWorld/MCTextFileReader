@@ -11,7 +11,7 @@ import net.minecraft.text.Text;
 
 import java.util.Objects;
 
-public class TextPagesWidget extends ScrollableWidget {
+public final class TextPagesWidget extends ScrollableWidget {
     private final MultilineTextWidget wrapped;
     private final TextRenderer textRenderer;
     private MutableText MainText;

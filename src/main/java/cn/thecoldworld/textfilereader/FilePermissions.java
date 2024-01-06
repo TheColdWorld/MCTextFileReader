@@ -1,13 +1,10 @@
 package cn.thecoldworld.textfilereader;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import cn.thecoldworld.textfilereader.api.funcitons;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.annotations.Expose;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.entity.Entity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.FileWriter;
@@ -17,11 +14,10 @@ import java.lang.ref.SoftReference;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Stream;
 
-public class FilePermissions {
+public abstract class FilePermissions {
     public static Files GlobalTextPermission = null;
     public static Files WorldTextPermission = null;
 
@@ -33,14 +29,9 @@ public class FilePermissions {
                 if (!e.getMessage().equals("File exist")) variables.Log.error("", e);
             }
         }
-        Gson gson = new GsonBuilder()
-                .enableComplexMapKeySerialization()
-                .excludeFieldsWithoutExposeAnnotation()
-                .create();
         Files FP;
         try {
-            FP = gson.fromJson(String.join("", java.nio.file.Files.readAllLines(FilePath)), Files.class);
-            if (FP == null) FP = new Files();
+            FP = Optional.ofNullable(variables.defaultGson.fromJson(String.join("", java.nio.file.Files.readAllLines(FilePath)), Files.class)).orElseGet(Files::new);
             FP.FilePath = FilePath.toFile();
             FP.UpdateFile();
         } catch (IOException e) {
@@ -49,24 +40,29 @@ public class FilePermissions {
         return FP;
     }
 
-    public static boolean HavePermission(ServerPlayerEntity player, String FileName, FileSource fileSource) {
-        boolean Online_Mode;
-        if (player.getServer() == null) Online_Mode = false;
-        else Online_Mode = player.getServer().isOnlineMode();
+    public static boolean HavePermission(ServerPlayerEntity player, String FileName, ServerFileSource serverFileSource) {
+        boolean Online_Mode = Optional.ofNullable(player.getServer()).map(MinecraftServer::isOnlineMode).orElse(false);
         try {
-            return switch (fileSource) {
+            return switch (serverFileSource) {
                 case global -> FilePermissions.GlobalTextPermission.HavePermission(player, FileName, Online_Mode);
                 case save -> FilePermissions.WorldTextPermission.HavePermission(player, FileName, Online_Mode);
-                case local ->
-                        throw new SimpleCommandExceptionType(Text.translatable("text.filereader.internalexception")).create();
             };
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
             return false;
         }
     }
 
+    public static Scanner GetFileScanner(String FileName, ServerFileSource fileSource) throws IOException {
+        return new Scanner(switch (fileSource) {
+            case global ->
+                    Paths.get(FilePermissions.GlobalTextPermission.FilePath.getParentFile().getAbsoluteFile().toString(), FileName);
+            case save ->
+                    Paths.get(FilePermissions.WorldTextPermission.FilePath.getParentFile().getAbsoluteFile().toString(), FileName);
+        });
+    }
+
     public static class Files {
-        @Expose
+
         public final List<File> Files;
         public transient java.io.File FilePath;
         public boolean NeedUpdate;
@@ -77,38 +73,38 @@ public class FilePermissions {
         }
 
         public void UpdateFile() throws IOException {
-            java.nio.file.Files.walk(FilePath.getParentFile().toPath(), Integer.MAX_VALUE).filter(java.nio.file.Files::isRegularFile).forEach(i -> {
-                if (i.getFileName().toString().equals("permissions.json")) return;
-                if (funcitons.GetFilePrefix(i.toFile()).equals("exe")) return;
-                if (Files.stream().anyMatch(m -> m.Name.equals(i.toFile().getName()))) return;
-                File fs = new File();
-                fs.Name = i.toFile().getName();
-                fs.Permissions = new ArrayList<>();
-                variables.TickEvent.add(() -> {
-                    Files.add(fs);
-                    NeedUpdate = true;
+            try (Stream<Path> stream = java.nio.file.Files.walk(FilePath.getParentFile().toPath(), Integer.MAX_VALUE)) {
+                stream.filter(java.nio.file.Files::isRegularFile).forEach(i -> {
+                    if (i.getFileName().toString().equals("permissions.json")) return;
+                    if (funcitons.GetFilePrefix(i.toFile()).equals("exe")) return;
+                    if (Files.stream().anyMatch(m -> m.Name.equals(i.toFile().getName()))) return;
+                    File fs = new File();
+                    fs.Name = i.toFile().getName();
+                    fs.Permissions = new ArrayList<>();
+                    variables.TickEvent.add(() -> {
+                        Files.add(fs);
+                        NeedUpdate = true;
+                    });
                 });
-            });
-            Files.forEach(i -> {
-                if (!Paths.get(FilePath.getParent(), i.Name).toFile().exists() || !Paths.get(FilePath.getParent(), i.Name).toFile().isFile()) {
-                    if (variables.ModSettings.isRemoveInvalidFile()) {
-                        variables.TickEvent.add(() -> {
-                            Files.remove(i);
-                            NeedUpdate = true;
-                        });
+            }
+            if (variables.ModSettings.isRemoveInvalidFile()) {
+                Files.forEach(i -> {
+                    if (!Paths.get(FilePath.getParent(), i.Name).toFile().exists() || !Paths.get(FilePath.getParent(), i.Name).toFile().isFile()) {
+                        if (variables.ModSettings.isRemoveInvalidFile()) {
+                            variables.TickEvent.add(() -> {
+                                Files.remove(i);
+                                NeedUpdate = true;
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         public void UpToFile() throws IOException {
             if (!NeedUpdate) return;
-            Gson gson = new GsonBuilder()
-                    .enableComplexMapKeySerialization()
-                    .excludeFieldsWithoutExposeAnnotation()
-                    .create();
             FileWriter fp = new FileWriter(FilePath, StandardCharsets.UTF_8, false);
-            fp.write(gson.toJson(this));
+            fp.write(variables.defaultGson.toJson(this));
             fp.flush();
             fp.close();
             NeedUpdate = false;
@@ -132,9 +128,9 @@ public class FilePermissions {
     }
 
     public static class File {
-        @Expose
+
         public String Name;
-        @Expose
+
         public List<Permissions> Permissions;
 
         public boolean RemovePermission(Entity ent, boolean Online_Mode, @NotNull Reference<Files> father) {
@@ -170,9 +166,9 @@ public class FilePermissions {
     }
 
     public static class Permissions {
-        @Expose
+
         public String Name;
-        @Expose
+
         public String UUID;
     }
 }
