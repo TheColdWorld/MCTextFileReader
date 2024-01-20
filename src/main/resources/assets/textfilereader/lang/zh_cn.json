@@ -46,5 +46,8 @@
   "options.textfilereader.serveroptiomstitle": "TextFileReader服务端侧模组设置",
   "options.textfilereader.logsenders": "记录指令使用者",
   "options.textfilereader.logsenders.tooltip": "将使用\"TextFileReader ReadFile FileName\"指令的人记录在服务端日志中\n§e这可能会加大日志文件的大小",
-  "text.filereader.printfile.line": "这是'%s'文件的第%s行的内容:\n%s"
+  "text.filereader.printfile.line": "这是'%s'文件的第%s行的内容:\n%s",
+  "text.filereader.changesettings.success.ops": "[%s:已经更新TextFileReader服务端设置,更新提交时间:%s] ",
+  "text.filereader.changesettings.success": "成功修改服务端TextFileReader设置（部分设置可能需要重启服务端生效）",
+  "text.filereader.clearpermission.fail": "未能清除文件%s的所有权限"
 }

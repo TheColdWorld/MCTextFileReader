@@ -40,8 +40,8 @@ jobs:
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ github.run_number }}"
-          title: "Auto Build-${{ github.run_number }}-${{ github.sha }}"
+          automatic_release_tag: "autobuild${{ github.run_number }}"
+          title: "Auto Build-${{ github.sha }}"
           draft: false
           prerelease: true
           files: |

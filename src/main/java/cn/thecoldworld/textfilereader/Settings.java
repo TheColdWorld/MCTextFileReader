@@ -38,6 +38,14 @@ public class Settings {
         }
     }
 
+    public void Reload(Settings settings) {
+        this.RemoveInvalidFile = settings.RemoveInvalidFile;
+        this.SegmentedOutput = settings.SegmentedOutput;
+        this.Threads = settings.Threads;
+        this.LogSenders = settings.LogSenders;
+        this.NeedUpdate = true;
+    }
+
     public boolean isLogSenders() {
         return LogSenders;
     }

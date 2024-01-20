@@ -1,7 +1,7 @@
 package cn.thecoldworld.textfilereader.networking;
 
+import cn.thecoldworld.textfilereader.networking.jsonformats.NetworkPackageContent;
 import cn.thecoldworld.textfilereader.variables;
-import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,14 +15,14 @@ public final class SendNetworkPackage extends NetWorkPackage {
     public final String ResponseType;
 
 
-    public SendNetworkPackage(JsonObject body, String responseType, String identifier, boolean needResponse) {
-        super(body, identifier);
+    public SendNetworkPackage(NetworkPackageContent packageContent, String responseType, String identifier, boolean needResponse) {
+        super(packageContent.ToJsonObject(), identifier);
         NeedResponse = needResponse;
         ResponseType = responseType;
     }
 
-    public SendNetworkPackage(JsonObject body, String identifier, boolean needResponse) {
-        super(body, identifier);
+    public SendNetworkPackage(NetworkPackageContent packageContent, String identifier, boolean needResponse) {
+        super(packageContent.ToJsonObject(), identifier);
         NeedResponse = needResponse;
         ResponseType = "Json";
     }

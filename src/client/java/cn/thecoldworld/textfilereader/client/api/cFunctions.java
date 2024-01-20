@@ -84,7 +84,7 @@ public abstract class cFunctions {
         }
     }
 
-    public static void GetFileFromServer(String FileName, ServerFileSource serverFileSource, TextGUI Screen) throws Exception {
+    public static void GetFileFromServer(String FileName, ServerFileSource serverFileSource, TextGUI Screen) {
         Screen.SetText(Text.translatable("gui.textfilereader.read.wait"));
         ClientNetWorkingTask.Run(new C2SGetFileContent(FileName, serverFileSource), variables.Identifiers.TextFileNetworkingIdentifier,
                 List.of(arguments -> {
@@ -144,5 +144,13 @@ public abstract class cFunctions {
             throw new SimpleCommandExceptionType(Text.translatable("text.filereader.exception", ex.getClass().getCanonicalName(), ex.getMessage())).create();
         }
         return 0;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public String AsString(FailedContent content) {
+        LinkedList<String> Keys = new LinkedList<>(Arrays.asList(content.Reason.split("\n")));
+        String Key = Keys.get(0);
+        Keys.remove(0);
+        return I18n.translate(Key, Keys.toArray());
     }
 }

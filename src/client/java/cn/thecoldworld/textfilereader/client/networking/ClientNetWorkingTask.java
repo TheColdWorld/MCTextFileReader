@@ -4,7 +4,6 @@ import cn.thecoldworld.textfilereader.api.tasks.OutReturnTask;
 import cn.thecoldworld.textfilereader.networking.ResponseNetworkPackage;
 import cn.thecoldworld.textfilereader.networking.SendNetworkPackage;
 import cn.thecoldworld.textfilereader.networking.jsonformats.NetworkPackageContent;
-import com.google.gson.JsonObject;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -23,7 +22,7 @@ public final class ClientNetWorkingTask extends OutReturnTask<S2CArguments> {
     public final String PackageID;
     public final String PackageBody;
 
-    public ClientNetWorkingTask(JsonObject SendPackageInformation, Identifier identifier, List<Consumer<S2CArguments>> callbacks) {
+    public ClientNetWorkingTask(NetworkPackageContent SendPackageInformation, Identifier identifier, List<Consumer<S2CArguments>> callbacks) {
         super(callbacks);
         SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, "Json", true);
         PackageID = p.ID;
@@ -39,7 +38,7 @@ public final class ClientNetWorkingTask extends OutReturnTask<S2CArguments> {
 
     public ClientNetWorkingTask(NetworkPackageContent SendPackageInformation, Identifier identifier, boolean needResponse) {
         super();
-        SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation.ToJsonObject(), "Json", needResponse);
+        SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, "Json", needResponse);
         PackageID = p.ID;
         PackageBody = p.ToJson();
         super.SetAction(() ->
@@ -53,7 +52,7 @@ public final class ClientNetWorkingTask extends OutReturnTask<S2CArguments> {
 
     public ClientNetWorkingTask(NetworkPackageContent ResponsePackageInformation, String ResponseID, Identifier identifier) {
         super();
-        ResponseNetworkPackage p = new ResponseNetworkPackage(ResponsePackageInformation.ToJsonObject(), ResponseID);
+        ResponseNetworkPackage p = new ResponseNetworkPackage(ResponsePackageInformation, ResponseID);
         PackageID = p.ID;
         PackageBody = p.ToJson();
         super.SetAction(() ->
@@ -65,7 +64,7 @@ public final class ClientNetWorkingTask extends OutReturnTask<S2CArguments> {
     }
 
     public static ClientNetWorkingTask Run(NetworkPackageContent SendPackageInformation, Identifier identifier, List<Consumer<S2CArguments>> callbacks) {
-        ClientNetWorkingTask i = new ClientNetWorkingTask(SendPackageInformation.ToJsonObject(), identifier, callbacks);
+        ClientNetWorkingTask i = new ClientNetWorkingTask(SendPackageInformation, identifier, callbacks);
         i.Start();
         return i;
     }

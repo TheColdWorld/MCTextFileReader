@@ -1,5 +1,6 @@
 package cn.thecoldworld.textfilereader.networking;
 
+import cn.thecoldworld.textfilereader.networking.jsonformats.NetworkPackageContent;
 import cn.thecoldworld.textfilereader.variables;
 import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
@@ -12,8 +13,8 @@ public final class ResponseNetworkPackage extends NetWorkPackage {
 
     public final String ResponseID;
 
-    public ResponseNetworkPackage(JsonObject body, String requestID) {
-        super(body, "TextFileReader::Response");
+    public ResponseNetworkPackage(NetworkPackageContent body, String requestID) {
+        super(body.ToJsonObject(), "TextFileReader::Response");
         this.ResponseID = requestID;
     }
 

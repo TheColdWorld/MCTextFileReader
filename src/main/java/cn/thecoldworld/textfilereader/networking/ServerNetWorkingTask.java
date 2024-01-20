@@ -1,7 +1,7 @@
 package cn.thecoldworld.textfilereader.networking;
 
 import cn.thecoldworld.textfilereader.api.tasks.OutReturnTask;
-import com.google.gson.JsonObject;
+import cn.thecoldworld.textfilereader.networking.jsonformats.NetworkPackageContent;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -17,7 +17,7 @@ public final class ServerNetWorkingTask extends OutReturnTask<C2SArguments> {
     public final String PackageID;
     public final String PackageBody;
 
-    public ServerNetWorkingTask(JsonObject SendPackageInformation, ServerPlayerEntity sendto, Identifier identifier, List<Consumer<C2SArguments>> callbacks) {
+    public ServerNetWorkingTask(NetworkPackageContent SendPackageInformation, ServerPlayerEntity sendto, Identifier identifier, List<Consumer<C2SArguments>> callbacks) {
         super(callbacks);
         SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, "Json", true);
         PackageID = p.ID;
@@ -31,7 +31,7 @@ public final class ServerNetWorkingTask extends OutReturnTask<C2SArguments> {
         });
     }
 
-    public ServerNetWorkingTask(JsonObject SendPackageInformation, ServerPlayerEntity sendto, Identifier identifier) {
+    public ServerNetWorkingTask(NetworkPackageContent SendPackageInformation, ServerPlayerEntity sendto, Identifier identifier) {
         super();
         SendNetworkPackage p = new SendNetworkPackage(SendPackageInformation, "Json", false);
         PackageID = p.ID;
@@ -44,7 +44,7 @@ public final class ServerNetWorkingTask extends OutReturnTask<C2SArguments> {
         });
     }
 
-    public ServerNetWorkingTask(JsonObject ResponsePackageInformation, String ResponseID, ServerPlayerEntity sendto, Identifier identifier) {
+    public ServerNetWorkingTask(NetworkPackageContent ResponsePackageInformation, String ResponseID, ServerPlayerEntity sendto, Identifier identifier) {
         super();
         ResponseNetworkPackage p = new ResponseNetworkPackage(ResponsePackageInformation, ResponseID);
         PackageID = p.ID;
@@ -57,19 +57,19 @@ public final class ServerNetWorkingTask extends OutReturnTask<C2SArguments> {
         });
     }
 
-    public static ServerNetWorkingTask Run(JsonObject SendPackageInformation, ServerPlayerEntity sendto, Identifier identifier, List<Consumer<C2SArguments>> callbacks) {
+    public static ServerNetWorkingTask Run(NetworkPackageContent SendPackageInformation, ServerPlayerEntity sendto, Identifier identifier, List<Consumer<C2SArguments>> callbacks) {
         ServerNetWorkingTask i = new ServerNetWorkingTask(SendPackageInformation, sendto, identifier, callbacks);
         i.Start();
         return i;
     }
 
-    public static ServerNetWorkingTask Run(JsonObject SendPackageInformation, ServerPlayerEntity sendto, Identifier identifier) {
+    public static ServerNetWorkingTask Run(NetworkPackageContent SendPackageInformation, ServerPlayerEntity sendto, Identifier identifier) {
         ServerNetWorkingTask i = new ServerNetWorkingTask(SendPackageInformation, sendto, identifier);
         i.Start();
         return i;
     }
 
-    public static ServerNetWorkingTask Run(JsonObject ResponsePackageInformation, String ResponseId, ServerPlayerEntity sendto, Identifier identifier) {
+    public static ServerNetWorkingTask Run(NetworkPackageContent ResponsePackageInformation, String ResponseId, ServerPlayerEntity sendto, Identifier identifier) {
         ServerNetWorkingTask i = new ServerNetWorkingTask(ResponsePackageInformation, ResponseId, sendto, identifier);
         i.Start();
         return i;

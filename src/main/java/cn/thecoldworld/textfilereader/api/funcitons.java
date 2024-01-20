@@ -10,9 +10,11 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -21,6 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public abstract class funcitons {
@@ -148,6 +152,14 @@ public abstract class funcitons {
         return (x + y - 1) / y;
     }
 
+    public static long DivisibleUpwards(long x, long y) {
+        return (x + y - 1) / y;
+    }
+
+    public static Integer DivisibleUpwards(Integer x, Integer y) {
+        return (x + y - 1) / y;
+    }
+
     public static String[] GetPages(int LinesPerPage, String... Lines) {
         int Pages = funcitons.DivisibleUpwards(Lines.length, LinesPerPage);
         String[] pages = new String[Pages];
@@ -174,5 +186,47 @@ public abstract class funcitons {
             pages[k] = sb.toString();
         }
         return pages;
+    }
+
+    public static void SendOPMessageAsync(MinecraftServer server, Text message) {
+        variables.scheduledExecutorService.schedule(() -> {
+            List<ServerPlayerEntity> OpEntitys = new LinkedList<>();
+            for (String x : server.getPlayerManager().getOpNames()) {
+                if (server.getPlayerManager().getPlayer(x) == null) continue;
+                OpEntitys.add(server.getPlayerManager().getPlayer(x));
+            }
+            OpEntitys.forEach(i -> i.sendMessage(message));
+        }, 0, TimeUnit.MICROSECONDS);
+    }
+
+    public static void SendOPMessage(MinecraftServer server, Text message) {
+        List<ServerPlayerEntity> OpEntitys = new LinkedList<>();
+        for (String x : server.getPlayerManager().getOpNames()) {
+            if (server.getPlayerManager().getPlayer(x) == null) continue;
+            OpEntitys.add(server.getPlayerManager().getPlayer(x));
+        }
+        OpEntitys.forEach(i -> i.sendMessage(message));
+    }
+
+    public static void SendOPMessageAsync(MinecraftServer server,@Nullable ServerPlayerEntity ExcludedPlayer, Text message) {
+        variables.scheduledExecutorService.schedule(() -> {
+            List<ServerPlayerEntity> OpEntitys = new LinkedList<>();
+            for (String x : server.getPlayerManager().getOpNames()) {
+                if (server.getPlayerManager().getPlayer(x) == null ||
+                        Objects.equals(server.getPlayerManager().getPlayer(x), ExcludedPlayer)) continue;
+                OpEntitys.add(server.getPlayerManager().getPlayer(x));
+            }
+            OpEntitys.forEach(i -> i.sendMessage(message));
+        }, 0, TimeUnit.MICROSECONDS);
+    }
+
+    public static void SendOPMessage(MinecraftServer server, @Nullable ServerPlayerEntity ExcludedPlayer, Text message) {
+        List<ServerPlayerEntity> OpEntitys = new LinkedList<>();
+        for (String x : server.getPlayerManager().getOpNames()) {
+            if (server.getPlayerManager().getPlayer(x) == null ||
+                    Objects.equals(server.getPlayerManager().getPlayer(x), ExcludedPlayer)) continue;
+            OpEntitys.add(server.getPlayerManager().getPlayer(x));
+        }
+        OpEntitys.forEach(i -> i.sendMessage(message));
     }
 }
